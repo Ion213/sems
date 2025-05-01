@@ -1,0 +1,141 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE EVENT
+{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_event.css') }}">
+
+<div class="container mt-5">
+	<div class="border p-3 bg-opacity-25 ">
+	<h2 class="text-center fw-bold mb-4">🎭 Manage Event</h2>
+		<div class="row">
+			<!-- Add Event Form (Smaller) -->
+			<div class="col-lg-2 col-md-2 mb-2 ">
+				<div class="border p-3">
+
+					<strong class="fs-3 fw-bold fst-italic">
+						<i class="fa-solid fa-calendar-plus">
+						</i>
+						Add Event
+					</strong>
+
+					<form id="add_event_form" method="POST">
+						<div class="mb-3">
+
+							<label for="event_name" class="form-label">Event Name</label>
+							<input type="text" class="form-control" id="event_name" name="event_name" required>
+
+							<label for="event_description" class="form-label">Event Description</label>
+							<textarea class="form-control" id="event_description" name="event_description" rows="4"> </textarea>
+							<br>
+
+							<button type="submit" class="btn btn-primary">
+								<i class="fa-solid fa-plus">
+								</i>
+								Add Event
+							</button>
+
+						</div>
+					</form>
+
+				</div>
+			</div>
+
+			<!-- Events Table (Larger) -->
+			<div class="col-lg-10 col-md-10 mb-10">
+				<div class="border p-3">
+					<strong class="fs-3 fw-bold fst-italic">Events:</strong>
+
+					<div class="table-responsive">
+					<!-- Dropdown for Year Filter
+					<label for="yearSelect" class="fw-bold"><i class="fa-solid fa-server"></i> Fetch Year:</label>
+					<select id="yearSelect" class="form-control">
+						{% for year in years %}
+							<option value="{{ year }}" 
+							{% if year == current_year %}
+								selected
+							{% endif %}>{{ year }}</option>
+						{% endfor %}
+					</select>
+					-->
+
+					<!--filter or search name
+					<div class="form-group">
+						<label for="nameFilter">Search by Name</label>
+						<input type="text" id="nameFilter" class="form-control" placeholder="Search by event name or description">
+					</div> -->
+						<table class="table table-bordered table-striped table-light" id="event_table"
+						class="display" style="width:100%">
+							<thead>
+								<tr>
+								<th></th>
+									<th>
+										Event Name
+									</th>
+									<th>
+										Event Description
+									</th>
+									<th>
+										Activities| Fines
+									</th>
+									<th>
+										Date Created
+									</th>
+									<th>
+										Date Updated
+									</th>
+									<th>
+										Action
+									</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+			<br>
+		</div>
+	</div>
+</div>
+<!-- EVENT UPDATE MODAL -->
+<div class="modal fade" id="update_event_modal" tabindex="-1" aria-labelledby="update_event_modal_label">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="update_event_modal_label">Update Event</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<form id="update_event_form">
+					<input type="hidden" id="selected_event_id" name="selected_event_id">
+					<div class="mb-3">
+						<label for="update_name" class="form-label">Event Name</label>
+						<input type="text" class="form-control" id="update_name" name="update_name" required>
+					</div>
+					<div class="mb-3">
+						<label for="update_description" class="form-label">Event Description</label>
+						<textarea class="form-control" id="update_description" name="update_description"rows="4"></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary" id="save_changes">Save Changes</button>
+				</form>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_event/event_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_event/add_event.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_event/delete_event.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_event/update_event.js') }}">
+</script>
+
+{% endblock %}

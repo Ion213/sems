@@ -1,0 +1,123 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE ACTIVITIES
+{% endblock %}
+
+{% block content %} 
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_activities.css') }}">     
+
+<nav id="pub_nav" class="navbar navbar-expand-lg navbar-light border-success bg-success bg-opacity-25 py5">
+    <div class="container-fluid">
+        <a class="nav-link" href="{{ url_for('manage_event.manage_event_page') }}"> <i class="fa-solid fa-arrow-rotate-left"></i>Back to Events</a>
+    </div>
+</nav>
+
+<div class="container mt-5 ">
+
+    <div class="border p-3 bg-opacity-25">
+    <h2 class="text-center fw-bold mb-4">📌 Manage Activities</h2>
+        <div class="row">
+            <div class="col-lg-3 col-md-4 mb-4">
+            <div class="border p-3">
+                    <strong class="fs-3 fw-bold fst-italic">
+						<i class="fa-solid fa-map-pin"></i>
+						Add Activity
+					</strong>
+                    <form id="add_activity_form">
+                        <input type="hidden" id="selected_event_id" name="selected_event_id" value="{{selected_event.id}}">
+                        <div class="mb-3">
+                            <label for="activity_name" class="form-label">Activity Name</label>
+                            <input type="text" class="form-control" id="activity_name" name="activity_name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="start_time" class="form-label">Start Time</label>
+                            <input type="time" class="form-control" id="start_time" name="start_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="end_time" class="form-label">End Time</label>
+                            <input type="time" class="form-control" id="end_time" name="end_time" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fines" class="form-label">Fines (₱)</label>
+                            <input type="number" class="form-control" id="fines" name="fines" step="0.01" min="0">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Activity</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Events Table (Larger) -->
+            <div class="col-lg-9 col-md-8 mb-8">
+            <div class="border p-3">
+                    <h1 class="fs-3 fw-bold fst-italic"> Activities for <strong style="color: green;">{{ selected_event.name }}</strong> :</h1>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="activity_table" data-event-id="{{ selected_event.id }}" data-event-name="{{ selected_event.event }}" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                <th></th>
+                                    <th>Activity Name</th>
+                                    <th>Start Time</th>
+                                    <th>End TIme</th>
+                                    <th>Fines</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update activities Modal -->
+<div class="modal fade" id="update_activity_modal" tabindex="-1" aria-labelledby="update_activity_modal_label" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_activity_modal_label">Update Activity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_activity_form">
+                    <input type="hidden" id="update_selected_event_id" name="update_selected_event_id" value="{{selected_event.id}}">
+
+                    <input type="hidden" id="update_selected_activity_id" name="update_selected_activity_id">
+                    <div class="mb-3">
+                        <label for="update_activity_name" class="form-label">Activity Name</label>
+                        <input type="text" class="form-control" id="update_activity_name" name="update_activity_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_activity_start_T" class="form-label">Activity Start Time</label>
+                        <input type="time" class="form-control" id="update_activity_start_T" name="update_activity_start_T" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_activity_end_T" class="form-label">Activity End Time</label>
+                        <input type="time" class="form-control" id="update_activity_end_T" name="update_activity_end_T" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_fines" class="form-label">Fines (₱)</label>
+                        <input type="number" class="form-control" id="update_fines" name="update_fines" step="0.01" min="0">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="save_changes">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_activities/activities_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_activities/add_activity.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_activities/delete_activity.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_activities/update_activity.js') }}">
+</script>
+{% endblock %}

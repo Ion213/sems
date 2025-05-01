@@ -1,0 +1,410 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE PAYMENTS
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_payment.css') }}">
+
+<div class="mt-5">
+    <div class="border p-3 bg-opacity-25">
+        <h2 class="text-center"><i class="fa-solid fa-money-check-dollar me-2"></i>Manage Payments</h2>
+
+        <ul class="nav nav-tabs" id="paymentTabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="transaction-tab" data-bs-toggle="tab" href="#add-payment">Transaction</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="unpaid-students-tab" data-bs-toggle="tab" href="#unpaid-students">Unpaid Students</a>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-4">
+            <div class="tab-pane fade show active" id="add-payment">
+                <!-- Add payment trigger -->
+                <div class="mb-3 text-end">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                        <i class="fa fa-plus me-1"></i> Add Payment
+                    </button>
+                </div>
+
+                <!-- Transaction History Table -->
+                <div class="row">
+                    <!-- Sidebar or Left Panel -->
+                    <div class="col-lg-12 col-md-12 col-sm-12 mb-3">
+                        <div class="border p-3 h-100">
+
+                        <div class="mb-3">
+                            <button class="btn bg-light" id="refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                            <label for="courseSelect">Department:</label>
+                            <select id="courseSelect" class="form-control">
+                                <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                {% for c in course %}
+                                <option value="{{ c }}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="yearSelect">Year:</label>
+                            <select id="yearSelect" class="form-control">
+                                <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                {% for y in year %}
+                                <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="sectionSelect">Section:</label>
+                            <select id="sectionSelect" class="form-control">
+                                <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                {% for s in section %}
+                                <option value="{{ s }}">{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <label for="date_yearSelect" class="fw-bold"><i class="fa-solid fa-server"></i> Fetch Year Date:</label>
+                        <select id="date_yearSelect" class="form-control">
+                            {% for year in date_years %}
+                                <option value="{{ year }}" 
+                                {% if year == current_year %}
+                                  selected
+                                {% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <hr>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-light" id="transaction_history" class="display" style="width:100%">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th></th>
+                                        <th>Transaction Code</th>
+                                        <th>Student Name</th>
+                                        <th>Department</th>
+                                        <th>year</th>
+                                        <th>section</th>
+                                        <th>Transaction Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="unpaid-students">
+                <div class="row">
+                    <!-- Sidebar or Left Panel -->
+                    <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
+                        <div class="border p-3 h-100">
+                            <div class="mb-3">
+                                <label for="sched_year" class="fw-bold">
+                                    <i class="fa-solid fa-server"></i> Fetch Year Date:
+                                </label>
+                                <select class="form-control" id="sched_year" name="sched_year" required>
+                                    {% for sched_year in sched_years %}
+                                    <option value="{{ sched_year }}">{{ sched_year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="sort-controls d-flex align-items-center gap-2 mb-2">
+                                <span><strong>Sort:</strong></span>
+                                <button id="sortNameAsc" class="btn btn-sm btn-outline-secondary sort-btn" data-sort-by="name" data-order="asc" title="Ascending">
+                                    <i class="fa-solid fa-arrow-up-a-z"></i>
+                                </button>
+                                <button id="sortNameDesc" class="btn btn-sm btn-outline-secondary sort-btn" data-sort-by="name" data-order="desc" title="Descending">
+                                    <i class="fa-solid fa-arrow-down-z-a"></i>
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <input type="text" id="eventSearchInput" class="form-control" placeholder="Search event...">
+                            </div>
+
+                            <div>
+                                <label class="fw-bold" id="events_label"><i class="fa-solid fa-calendar"></i> Events:</label>
+                                <button id="clearEventSelection" class="btn btn-secondary btn-sm mb-2" style="display: none;">
+                                    <i class="fa-solid fa-arrows-rotate me-1"></i>
+                                </button>
+
+                                <div id="eventList" class="list-group border" style="max-height: 300px; overflow-y: auto;">
+                                    <!-- Events will be inserted here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- unpaid students table-->
+                    <div class="col-lg-9 col-md-8 col-sm-12 mb-3">
+                        <div class="border p-3">
+                            <div class="table-responsive">
+                                <strong id="unpaid_students_list_name" class="fs-3 fw-bold fst-italic text-success">No selected Event</strong><br>
+                                <small id="unpaid_students_list_date" class="fs-5 fw-semibold fst-italic text-muted"></small>
+                            </div>
+                            <hr>
+
+                            <div class="mb-3">
+                                <button class="btn bg-light" id="u_refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="u_courseSelect">Department:</label>
+                                <select id="u_courseSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for c in course %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="u_yearSelect">Year:</label>
+                                <select id="u_yearSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for y in year %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="u_sectionSelect">Section:</label>
+                                <select id="u_sectionSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for s in section %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <table class="table table-bordered table-striped table-light" id="unpaid_students_attendance_table" class="display" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Department</th>
+                                        <th>Year</th>
+                                        <th>Section</th>
+                                        <th>Total Fines Balance</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Add Payment Modal -->
+<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <form id="addPaymentForm" class="modal-content" style="background:rgba(242, 237, 237, 0.6);">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Payment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Student Search -->
+        <div class="mb-4 p-3" style="background: rgba(249, 235, 235, 0.968); border-radius: 8px; border: 1px solid rgba(0, 255, 0, 0.3);">
+          <label class="form-label fw-bold">Search Student</label>
+          <input type="text" id="user-search" class="form-control" name="user-search" placeholder="Input Student Name">
+          <ul id="user-list" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;"></ul>
+        </div>
+
+        <!-- Attendance List -->
+        <div class="mb-4 p-3" style="background: rgba(249, 235, 235, 0.968); border-radius: 8px; border: 1px solid rgba(0, 255, 0, 0.3);">
+          <strong id="selected_student_name" style="color:#009900;"></strong>
+          <hr>
+          <input id="selected_student" name="selected_student" hidden required>
+
+          <label class="form-label">Unpaid fines:</label>
+            <div class="form-check" id="attendanceContainer" style="
+                max-height: 500px;
+                overflow-y: auto;
+                padding: 10px;
+                background-color: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+            ">
+              <em class="text-muted">Select a student to load their fines.</em>
+            </div>
+        </div>
+
+        <!-- Payment Info -->
+        <div class="mb-4 p-3" style="background: rgba(249, 235, 235, 0.968); border-radius: 8px; border: 1px solid rgba(0, 255, 0, 0.3);">
+          <div class="row">
+            <div class="col-md-4">
+              <label class="form-label">Total Fine ₱</label>
+              <input type="number" step="0.01" id="total_fines" name="total_fines" class="form-control" readonly>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Cash Given ₱</label>
+              <input type="number" step="0.01" id="cash_amount" name="cash_amount" class="form-control" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Change ₱</label>
+              <input type="number" step="0.01" id="change" name="change" class="form-control" readonly>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-3 p-3" style="background: rgba(249, 235, 235, 0.968); border-radius: 8px; border: 1px solid rgba(0, 255, 0, 0.3);">
+          <label class="form-label">Note (optional)</label>
+          <textarea class="form-control" id="notes" name="notes"></textarea>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Submit Payment</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+<!-- Receipt Modal -->
+<div id="receiptModal" class="modal fade" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="receiptModalLabel">Payment Receipt</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Receipt content will be dynamically inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button id="printReceiptBtn" class="btn btn-primary">Print Receipt</button>
+        <button id="exportWordBtn" class="btn btn-success">Export to Word</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- show paid -->
+<div class="modal fade" id="show_paid_attendance_modal" tabindex="-1" aria-labelledby="show_paid_attendance_modal_label">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="show_paid_attendance_modal_label">
+					Transaction details
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<h5 class="modal-title" id="student_name">Name here</h5>
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped" id="paid_attendance_table" style="width:100%">
+						<thead>
+							<tr>
+								<th>Event Name</th>
+								<th>Event Date</th>
+								<th>Activity Name</th>
+								<th>Time In</th>
+								<th>Time Out</th>
+								<th>Status</th>
+								<th>Fines</th>
+								<th>Payment Status</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="noteModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Full Note</h5></div>
+    <div class="modal-body"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+
+
+
+<!-- show unpaid attendance list -->
+<div class="modal fade" id="show_unpaid_activity_attendance_modal" tabindex="-1" aria-labelledby="show_unpaid_activity_attendance_modal_label">
+	<div class="modal-dialog modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="show_unpaid_activity_attendance_modal_label">
+					Transaction details
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+
+				<h5 class="modal-title" id="Unpaid_schedule_name">Schedule name here</h5>
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-striped" id="unpaid_activity_attendance_table" style="width:100%">
+						<thead>
+							<tr>
+								<th>Activity Name</th>
+								<th>Time In</th>
+								<th>Time Out</th>
+								<th>Status</th>
+								<th>Fines</th>
+								<th>Payment Status</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/transaction_table.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/add_payment.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/view_receipt.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/after_payment_receipt.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/delete_transaction.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/view_paid_attendance_list.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/unpaid_student_table.js') }}">
+
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/view_unpaid_student_activity_list.js') }}">
+</script>
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_payment/tab_state.js') }}">
+</script>
+
+
+{% endblock %}

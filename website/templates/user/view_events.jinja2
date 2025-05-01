@@ -1,0 +1,192 @@
+{% extends 'user/u_nav.html' %}
+
+{% block title %}
+    VIEW EVENTS
+{% endblock %}
+
+{% block content %}
+
+<!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/view_events.css') }}">
+
+<div class="container mt-2">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header text-white text-center">
+                    <h3><i class="fa-solid fa-calendar-days"></i> Events</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Event Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="eventTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab"
+                            data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming"
+                            aria-selected="true">
+                                <i class="fa-solid fa-clock"></i> Upcoming Events
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing"
+                            type="button" role="tab" aria-controls="ongoing" aria-selected="false">
+                                <i class="fa-solid fa-hourglass-half"></i> Ongoing Events
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed"
+                            type="button" role="tab" aria-controls="completed" aria-selected="false">
+                                <i class="fa-solid fa-check-circle"></i> Completed Events
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="eventTabsContent">
+                        <!-- Upcoming Events Tab -->
+                        <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+                            <div class="section-header">
+                                <h2 class="fs-3"><i class="fa-solid fa-clock text-warning"></i> Upcoming Events</h2>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="upcoming_sched_table">
+                                    <thead>
+                                        <tr>
+											<th>
+												Event Name
+											</th>
+											<th>
+												Schedule Date
+											</th>
+											<th>
+												Activities | Total Fines
+											</th>
+											<th>
+												Status
+											</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Ongoing Events Tab -->
+                        <div class="tab-pane fade" id="ongoing" role="tabpanel" aria-labelledby="ongoing-tab">
+                            <div class="section-header">
+                                <h2 class="fs-3"><i class="fa-solid fa-hourglass-half text-success"></i> Ongoing Events</h2>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="ongoing_sched_table">
+                                    <thead>
+                                        <tr>
+                                           <th>
+												Event Name
+											</th>
+											<th>
+												Schedule Date
+											</th>
+											<th>
+												Activities | Total Fines
+											</th>
+											<th>
+												Status
+											</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Completed Events Tab -->
+                        <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                            <div class="section-header">
+                                <h2 class="fs-3"><i class="fa-solid fa-check-circle text-primary"></i> Completed Events</h2>
+                            </div>
+                            <div class="table-responsive">
+
+                            <label for="yearSelect" class="fw-bold"><i class="fa-solid fa-server"></i> Fetch Year Date:</label>
+								<select id="yearSelect" class="form-control">
+									{% for year in years %}
+										<option value="{{ year }}" 
+										{% if year == current_year %}
+											selected
+										{% endif %}>{{ year }}</option>
+									{% endfor %}
+								</select>
+
+                                <table class="table table-hover" id="completed_sched_table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+												Event Name
+											</th>
+											<th>
+												Schedule Date
+											</th>
+											<th>
+												Activities | Total Fines
+											</th>
+											<th>
+												Status
+											</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Show Activities Modal -->
+<div class="modal fade" id="show_activities_modal" tabindex="-1" aria-labelledby="show_activities_modal_label">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="show_activities_modal_label" style="color:rgb(217, 237, 239)">
+                    <i class="fa-solid fa-list-check"></i> Activities
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <h5 class="modal-title" id="sched_name"><i class="fa-solid fa-calendar-day"></i> Event name here</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover" id="activity_table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>
+									Activity Name
+								</th>
+								<th>
+									Start Time
+								</th>
+								<th>
+									End Time
+								</th>
+								<th>
+									Fines
+								</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/user_view_events/upcoming_events_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/user_view_events/ongoing_events_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/user_view_events/completed_events_table.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/user_view_events/tab_state.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/user_view_events/view_events_activity.js') }}">
+</script>
+
+{% endblock %}

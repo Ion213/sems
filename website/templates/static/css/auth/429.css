@@ -1,0 +1,25 @@
+body {
+    background-color: hsl(134, 36%, 58%);
+     height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     min-height: 100vh;
+     background-image: url('/static/logo/request.png');
+     background-size: 30%;
+     background-repeat: no-repeat;
+     background-position: right center;
+ }
+ 
+ .error-card {
+     max-width: 500px;
+     width: 100%;
+     border: none;
+     border-radius: 10px;
+     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+ }
+ 
+ .error-icon {
+     font-size: 3rem;
+     color: #dc3545;
+ }

@@ -1,0 +1,1 @@
+source /home/danaotec/virtualenv/sems/3.11/bin/activate && cd /home/danaotec/sems && python3 cron_runner.py

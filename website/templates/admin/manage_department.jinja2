@@ -1,0 +1,147 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE DEPARTMENTS
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_department.css') }}">
+
+<div class="container mt-5">
+
+    <div class="border p-3 bg-opacity-25 ">
+    <h2 class="text-center fw-bold mb-4">📚🔬💻⚙️ Manage Departments</h2>
+        <div class="row">
+            <!-- Add department Form (Smaller) -->
+            <div class="col-lg-3 col-md-3 mb-2 " >
+                <div class="border p-3">
+                    <h1 class="fs-3 fw-bold fst-italic"> <i class="fa-solid fa-building-user"></i> Add Department</h1>
+                    <form id="add_department_form" method="POST">
+                        <div class="mb-3">
+                            <label for="department_name" class="form-label">Department Name</label>
+                            <input type="text" class="form-control" id="department_name" name="department_name" required>
+                        </div>
+                        <div class="mb-3">
+                        <label for="yearT" class="form-label">Year:</label>
+
+                        <select id="year" name="year" required>
+                            {%for year in years%}
+                                <option value="{{year}}">{{year }}</option>
+                            {%endfor%}
+                        </select>
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="section" class="form-label">Section</label>
+                            <input type="text" class="form-control" id="section" name="section" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>Add DEPARTMENT
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Department Table (Larger) -->
+            <div class="col-lg-9 col-md-9 mb-9">
+            <div class="border p-3">
+                <h1 class="fs-3 fw-bold fst-italic">Departments:</h1>
+                <div class="table-responsive">
+
+                <div class="mb-3">
+
+                 <button class="btn bg-light" id="refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <label for="courseSelect">Department:</label>
+                    <select id="courseSelect" class="form-control">
+                        <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                        {% for c in course %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="yearSelect">Year:</label>
+                    <select id="yearSelect" class="form-control">
+                        <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                        {% for y in year %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
+                        </select>
+
+                    <label for="sectionSelect">Section:</label>
+                    <select id="sectionSelect" class="form-control">
+                        <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                        {% for s in section %}
+                        <option value="{{ s }}">{{ s }}</option>
+                        {% endfor %}
+                        </select>
+                </div>
+
+
+                    <table class="table table-bordered table-striped" id="department_table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                            <th></th>
+                                <th>DEPARTMENT NAME</th>
+                                <th>YEAR</th>
+                                <th>SECTION</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            </div>
+
+            <br>
+        </div>
+    </div>
+</div>
+
+
+<!--department update modal-->
+<div class="modal fade" id="update_department_modal" tabindex="-1" aria-labelledby="update_department_modal_label" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_department_modal_label">Update Department</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_department_form">
+                    <input type="hidden" id="update_selected_department_id" name="update_selected_department_id">
+                    <div class="mb-3">
+                        <label for="update_department_name" class="form-label">Department Name</label>
+                        <input type="text" class="form-control" id="update_department_name" name="update_department_name" required>
+                    </div>
+                        <div class="mb-3">
+                        <label for="update_year" class="form-label">Year:</label>
+
+                        <select id="update_year" name="update_year" required>
+                            {%for year in years%}
+                            <option value="{{year}}">{{year}}</option>
+                            {%endfor%}
+                        </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_section" class="form-label">Section</label>
+                            <input type="text" class="form-control" id="update_section" name="update_section" required>
+                        </div>
+                    <button type="submit" class="btn btn-primary" id="save_changes">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_department/department_table.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_department/add_department.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_department/delete_department.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_department/update_department.js') }}">
+</script>
+
+
+{% endblock %}

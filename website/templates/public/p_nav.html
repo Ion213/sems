@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>
+        {% block title %}
+        {% endblock %} | DTC S.E.M.S
+    </title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/bootstrap5.3/css/bootstrap.min.css') }}">
+    <!-- Font Awesome -->
+    <link href="{{ url_for('static', filename='js_lib/fontawesome-free-6.5.2-web/css/all.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/sweet-alert/css/sweetalert2.min.css') }}">
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js_lib/jquery3.7.1/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/bootstrap5.3/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/sweet-alert/js/sweetalert2@11.js') }}"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='logo/dtc.png') }}" type="image/png">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public/p_nav.css') }}">
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="{{ url_for('static', filename='logo/dtc.png') }}" alt="DTC EMS Logo" width="40" height="40" class="me-2">
+                <span class="fw-bold">S.E.M.S</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="fas fa-calendar-day me-1"></i> Events Preview
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav" id="account_button">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> Account
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('login.login_page') }}">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('signup.signup_page') }}">
+                                <i class="fas fa-user-plus me-2"></i>Sign Up
+                            </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-3 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">&copy; 2025 DTC School Event Management System. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="https://web.facebook.com/dtcbohol" class="text-white me-2"><i class="fab fa-facebook-f"></i></a>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
+    <script>
+        // Smooth scrolling for all links
+        $(document).ready(function(){
+            $("a").on('click', function(event) {
+                if (this.hash !== "") {
+                    event.preventDefault();
+                    var hash = this.hash;
+                    $('html, body').animate({
+                        scrollTop: $(hash).offset().top
+                    }, 800, function(){
+                        window.location.hash = hash;
+                    });
+                }
+            });
+            
+            // Enhance dropdown animation
+            $('.dropdown').on('show.bs.dropdown', function () {
+                $(this).find('.dropdown-menu').first().stop(true, true).slideDown(300);
+            });
+            
+            $('.dropdown').on('hide.bs.dropdown', function () {
+                $(this).find('.dropdown-menu').first().stop(true, true).slideUp(200);
+            });
+            
+            // Smooth page transitions
+            $('body').css('opacity', '1');
+        });
+    </script>
+    
+    {% block scripts %}
+    {% endblock %}
+</body>
+
+</html>

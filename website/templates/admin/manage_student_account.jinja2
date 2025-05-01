@@ -1,0 +1,346 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE ATTENDANCE
+{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_student_account.css') }}">
+
+<div class="container mt-5">
+    <div class="border p-3 bg-opacity-25">
+        <h2 class="text-center fw-bold mb-4">🧑‍🎓 Manage Students Account</h2>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-3" id="account_tabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="add_students_tab" data-bs-toggle="tab" data-bs-target="#add_students" type="button">
+                    Students Account
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="unverified_students_tab" data-bs-toggle="tab" data-bs-target="#unverified_students" type="button">
+                    Unverified Students Account
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Add Students Tab -->
+            <div class="tab-pane fade show active" id="add_students">
+                <div class="row">
+                    <!-- Add Student Form -->
+                    <div class="col-sm-12 col-md-2 col-lg-2 col-xl-2">
+                        <div class="border p-3">
+                            <h1 class="fs-3 fw-bold fst-italic">
+                                <i class="fa-solid fa-user-plus"></i> Add Student
+                            </h1>
+                            <form id="add_student_form" method="POST">
+                                <div class="mb-3">
+                                    <label for="student_id" class="form-label">Student ID</label>
+                                    <input type="number" class="form-control" id="student_id" name="student_id" min="10000000000" max="99999999999" required >
+                                    <!-- <button type="button" class="btn btn-light mt-2" id="generate-btn">
+                                        <i class="fa-solid fa-dice"></i>
+                                    </button> -->
+                                </div>
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="password" required minlength="6" maxlength="20">
+                                        <button class="btn btn-outline-secondary" type="button" id="togglePasswordAdd">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Course, Year & Section</label>
+                                    <div id="department">
+                                        <select id="course" name="course" class="form-select form-select-sm" required>
+                                            <option value="" disabled selected>Department</option>
+                                            {% for c in course %}
+                                                <option value="{{c}}">{{ c }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <select id="year" name="year" class="form-select form-select-sm" required>
+                                            <option value="" disabled selected>Year</option>
+                                            {% for y in year %}
+                                                <option value="{{ y }}">{{ y }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <select id="section" name="section" class="form-select form-select-sm" required>
+                                            <option value="" disabled selected>Section</option>
+                                            {% for s in section %}
+                                                <option value="{{ s }}">{{ s }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-plus"></i> Add Account
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Student Table -->
+                    <div class="col-sm-12 col-md-10 col-lg-10 col-xl-10">
+                        <div class="border p-3">
+                            <h1 class="fs-3 fw-bold fst-italic">Student Accounts:</h1>
+                            <div class="table-responsive">
+                            <div class="mb-3">
+
+                            <button class="btn bg-light" id="refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="courseSelect">Department:</label>
+                                <select id="courseSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for c in course %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="yearSelect">Year:</label>
+                                <select id="yearSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for y in year %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                <label for="sectionSelect">Section:</label>
+                                <select id="sectionSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for s in section %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+                                <table class="table table-bordered table-striped display" id="student_table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                        <th></th>
+                                            <th>Student ID</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Email</th>
+                                            <th>Password</th>
+                                            <th>Department</th>
+                                            <th>Year</th>
+                                            <th>Section</th>
+                                            <th>Date Registered</th>
+                                            <th>Status</th>
+                                           <!-- <th>Date Updated</th>-->
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unverified Students Tab -->
+            <div class="tab-pane fade" id="unverified_students">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="border p-3">
+                            <h1 class="fs-3 fw-bold fst-italic">Unverified Students Account:</h1>
+                            <div class="table-responsive">
+
+                            <div class="mb-3">
+
+                            <button class="btn bg-light" id="refresh_U"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="courseSelect_U">Department:</label>
+                                <select id="courseSelect_U" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for c in course %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="yearSelect_U">Year:</label>
+                                <select id="yearSelect_U" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for y in year %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                <label for="sectionSelect_U">Section:</label>
+                                <select id="sectionSelect_U" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for s in section %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+
+                                <table class="table table-bordered table-striped display" id="unverified_student_table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                        <th></th>
+                                            <th>Student ID</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Email</th>
+                                            <th>Password</th>
+                                            <th>Department</th>
+                                            <th>Year</th>
+                                            <th>Section</th>
+                                            <th>Date SignUp</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- Closed Unverified Students Tab -->
+        </div>
+    </div>
+</div>
+
+<!-- Update Student Account Modal -->
+<div class="modal fade" id="update_student_account_modal" tabindex="-1" aria-labelledby="update_student_account_modal_label">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_student_account_modal_label">Update Student Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_student_account_form">
+                    <input type="hidden" id="selected_student_account_id" name="selected_student_account_id">
+                    <div class="mb-3">
+                        <label for="update_student_id" class="form-label">Student ID</label>
+                        <input type="number" class="form-control" id="update_student_id" name="update_student_id" placeholder="Input ID" min="10000000000" max="99999999999" required>
+                        <!-- <button type="button" class="btn btn-light mt-2" id="generate-btn">
+                            <i class="fa-solid fa-dice"></i>
+                        </button> -->
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="update_first_name" name="update_first_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="update_last_name" name="update_last_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_email" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="update_email" name="update_email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="update_password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="update_password" name="update_password" minlength="6" maxlength="20" required>
+                            <button class="btn btn-outline-secondary" type="button" id="togglePasswordUpdate">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Department, Year & Section</label>
+                        <div id="update_department">
+
+                            <select id="update_course" name="update_course" class="form-select form-select-sm" required>
+                                <option value="" disabled selected>Department</option>
+                                {% for c in course %}
+                                <option value="{{c}}">{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                            <select id="update_year" name="update_year" class="form-select form-select-sm" required>
+                                <option value="" disabled selected>Year</option>
+                                {% for y in year %}
+                                <option value="{{ y }}">{{ y }}</option>
+                                {% endfor %}
+                                </select>
+                            <select id="update_section" name="update_section" class="form-select form-select-sm" required>
+                                <option value="" disabled selected>Section</option>
+                                {% for s in section %}
+                                <option value="{{ s }}">{{ s }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="save_changes">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/student_account_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/tab_state.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/add_student_account.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/delete_student_account.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/update_student_account.js') }}">
+</script>
+
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/unverified_student_table.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/accept_student.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_student_account/decline_student.js') }}">
+</script>
+
+<script>
+$(document).ready(function () {
+    $("#togglePasswordAdd").click(function () {
+        let passwordField = $("#password");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+
+    $("#togglePasswordUpdate").click(function () {
+        let passwordField = $("#update_password");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+
+
+</script>
+{% endblock %}

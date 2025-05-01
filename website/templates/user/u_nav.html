@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}
+        {% endblock %}DTC S.E.M.S</title>
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/bootstrap5.3/css/bootstrap.min.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/fontawesome-free-6.5.2-web/css/all.min.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/sweet-alert/css/sweetalert2.min.css') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/data-tables/css/dataTables.dataTables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/data-tables/css/buttons.dataTables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='js_lib/data-tables/css/select.dataTables.min.css') }}">
+
+    <script src="{{ url_for('static', filename='js_lib/bootstrap5.3/js/bootstrap.bundle.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js_lib/jquery3.7.1/jquery-3.7.1.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js_lib/sweet-alert/js/sweetalert2@11.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/dataTables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/dataTables.buttons.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/buttons.dataTables.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/buttons.colVis.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/dataTables.select.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/select.dataTables.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/jszip.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/pdfmake.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/vfs_fonts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js_lib/data-tables/js/buttons.print.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js_lib/html5-qrcode-scanner/html5-qrcode.min.js') }}">
+    </script>
+
+    <script src="{{ url_for('static', filename='js_lib/qr_code_generator/qrcode.min.js') }}">
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='logo/dtc.png') }}" type="image/png">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/u_nav.css') }}">
+
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#b7c6bf">
+        <div class="container">
+            <!-- Logo and Brand -->
+            <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='logo/dtc.png') }}" alt="Logo" width="50" height="50">
+                S.E.M.S
+            </a>
+
+            <!-- Toggle Button for Mobile View -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_events.view_events_page') }}">
+                            <i class="fa-solid fa-calendar"></i> Events
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('view_attendance_fine.view_attendance_fine_page') }}">
+                            <i class="fa-solid fa-clipboard-user"></i> Attendance & Fines
+                        </a>
+                    </li>
+                    
+
+                    
+                    <!-- User Dropdown Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ current_user.first_name }} {{ current_user.last_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('view_profile.view_profile_page') }}">
+                                <i class="fas fa-user"></i> My Profile</a><li>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container mt-4">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Logout function with SweetAlert confirmation
+            $("#logoutBtn").click(function(e) {
+                e.preventDefault(); // Prevent default link behavior
+                // Use SweetAlert for logout confirmation
+                Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to logout?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, logout!',
+                cancelButtonText: 'Cancel'
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send an AJAX request to logout
+                    Swal.fire({
+                    title: 'Logging out...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                    });
+                    
+                    $.ajax({
+                    url: "{{ url_for('log_out.user_logout') }}", // Your Flask logout route
+                    method: 'POST', // Assuming logout uses a POST request
+                    dataType: 'json', // Expect JSON response
+                    success: function(response) {
+                        if (response.success) {
+                        // SweetAlert for successful logout
+                        Swal.fire({
+                            title: 'Logged Out',
+                            text: 'You have successfully logged out.',
+                            icon: 'success',
+                            confirmButtonText: 'Okay',
+                            timer: 1500,
+                            timerProgressBar: true
+                        }).then(() => {
+                            window.location.href = response.redirect_url; // Redirect to the appropriate page
+                        });
+                        } 
+                        else {
+                        // SweetAlert for failure
+                        Swal.fire({
+                            title: 'Logout Failed',
+                            text: 'There was an issue logging out. Please try again.',
+                            icon: 'error',
+                            confirmButtonText: 'Okay',
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                        }
+                    },
+                    error: function() {
+                        // SweetAlert for error
+                        Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'Okay',
+                        timer: 3000,
+                        timerProgressBar: true
+                        });
+                    }
+                    });
+                }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

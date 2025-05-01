@@ -1,0 +1,148 @@
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+body {
+    background-color: hsl(134, 36%, 58%);
+}
+
+.container {
+    max-width: 2560px;
+    max-height: 3660px;
+    padding: 1px;
+}
+
+h2 {
+    color: #fff;
+    text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+}
+
+.border {
+    border: 1px solid rgba(0, 255, 0, 0.3) !important;
+    border-radius: 10px;
+    background: rgba(242, 237, 237, 0.6);
+    backdrop-filter: blur(10px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    border: none;
+    animation: rgbAnimation 5s infinite alternate;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #00cc00, #009900);
+}
+
+.form-control {
+    background: rgba(232, 223, 223, 0.5);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    color: #060000;
+}
+
+.form-control:focus {
+    background: rgba(245, 229, 229, 0.7);
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 10px #00ff00;
+}
+
+.modal-content {
+    background: rgba(249, 235, 235, 0.968);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    color: #000000;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+
+
+/* DataTables Custom Styling for Dark Theme */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+color: #fff !important;
+border: 1px solid rgba(0, 255, 0, 0.3) !important;
+background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+background: rgba(0, 255, 0, 0.2) !important;
+color: #00ff00 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+background: rgba(0, 255, 0, 0.5) !important;
+color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_processing,
+.dataTables_wrapper .dataTables_paginate {
+color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+background: rgba(0, 0, 0, 0.5);
+border: 1px solid rgba(0, 255, 0, 0.3);
+color: #fff;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+background: rgba(0, 0, 0, 0.7);
+border: 1px solid #00ff00;
+box-shadow: 0 0 10px #00ff00;
+}
+
+/* Styling for Buttons and Dropdowns */
+.dt-buttons .btn {
+background: linear-gradient(135deg, #00ff00, #00cc00) !important;
+border: none !important;
+color: #fff !important;
+}
+
+.dt-buttons .btn:hover {
+background: linear-gradient(135deg, #00cc00, #009900) !important;
+}
+
+.dt-button-collection {
+background: rgba(0, 0, 0, 0.9) !important;
+border: 1px solid rgba(0, 255, 0, 0.3) !important;
+}
+
+.dt-button-collection button {
+color: #fff !important;
+background: rgba(0, 0, 0, 0.7) !important;
+border: none !important;
+}
+
+.dt-button-collection button:hover {
+background: rgba(0, 255, 0, 0.2) !important;
+color: #00ff00 !important;
+}
+
+#yearSelect {
+height: 30px; /* Adjust height */
+padding: 2px 8px; /* Reduce padding */
+font-size: 14px; /* Reduce font size */
+width: auto; /* Make it fit the content */
+display: inline-block; /* Prevent full width */
+}
+#save_changes:disabled {
+    opacity: 0.5; /* Make disabled button appear faded */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+}

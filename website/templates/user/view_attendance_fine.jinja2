@@ -1,0 +1,186 @@
+{% extends 'user/u_nav.html' %}
+
+{% block title %}
+    ATTENDANCE AND FINES
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user/view_attendance_fine.css') }}">
+
+<div class="container mt-3">
+    <div class="col-md-12 mx-auto">
+        <div class="card shadow-lg">
+            <!-- Header -->
+            <div class="card-header bg-light text-white text-center">
+                <h3><i class="fa-solid fa-clipboard-user"></i> Attendance & Fines</h3>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+                <!-- Filters -->
+<!-- Filters (Inline & Compact) -->
+<div class="mb-4 d-flex flex-wrap align-items-end gap-3">
+
+    <div>
+        <label for="date_yearSelect" class="form-label fw-bold mb-1">
+            <i class="fa-solid fa-server"></i>Fetch Year Date:
+        </label>
+        <select id="date_yearSelect" class="form-control">
+            {% for year in years %}
+										<option value="{{ year }}" 
+										{% if year == current_year %}
+											selected
+										{% endif %}>{{ year }}</option>
+									{% endfor %}
+        </select>
+    </div>
+    
+    
+
+    <div>
+        <label for="statusSelect" class="form-label fw-bold mb-1">Status:</label>
+        <select id="statusSelect" class="form-control">
+            <option value="">Not filtered</option>
+            {% for stats in status %}
+                <option value="{{ stats }}">{{ stats }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="pay_statusSelect" class="form-label fw-bold mb-1">Payment Status:</label>
+        <select id="pay_statusSelect" class="form-control">
+            <option value="">Not filtered</option>
+            {% for pay_stats in pay_status %}
+                <option value="{{ pay_stats }}">
+                {%if pay_stats==0%} Unpaid 
+                {%elif pay_stats==1%}Paid{%endif%}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button class="btn bg-light" id="refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+</div>
+
+
+                <!-- Current Balance -->
+                <div class="mb-3 text-end">
+                    <span class="fs-4">
+                        {%if current_balance%}
+                        Current Balance: ₱ <strong class="text-warning" id="balance_value">{{current_balance}}</strong>
+                        {%endif%}
+                    </span>
+                </div>
+                <hr>
+
+                <!-- Attendance & Fines Table -->
+                <div class="col-12 mb-3">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="user_attendance_table">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Event Date</th>
+                                    <th>Activity Name</th>
+                                    <th>Time In</th>
+                                    <th>Time Out</th>
+                                    <th>Fines</th>
+                                    <th>Status</th>
+                                    <th>Payment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be dynamically inserted via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- /card-body -->
+        </div> <!-- /card -->
+    </div> <!-- /col -->
+</div> <!-- /container -->
+
+<script>
+var user_attendance_table;
+$(document).ready(function() {
+    user_attendance_table = new DataTable('#user_attendance_table', {
+
+        // table tools
+        responsive: true,
+        stateSave: true,
+        paging: true,
+        scrollCollapse: true,
+        scrollX: true,
+        scrollY: '120vh',
+        select: true,
+
+        layout: {
+            top1Start: 'pageLength',
+            top1End: 'search',
+            topStart: 'info',
+            topEnd: 'paging',
+
+            top3Start: {
+                buttons: [{
+                    extend: 'collection',
+                    text: 'Export',
+                    buttons: [
+                       
+                        { extend: 'pdf', title: '{{current_user.first_name}} {{current_user.last_name}} Attendance & Fines in '+$('#date_yearSelect').val(), footer: false, orientation: 'portrait', pageSize: 'LEGAL', exportOptions: { columns: ':visible', rows: ':visible' } }
+                    ]
+                },
+                {
+                    extend: 'collection',
+                    text: 'Export All Page',
+                    buttons: [
+                        { extend: 'pdf', title: ' {{current_user.first_name}} {{current_user.last_name}} Attendance & Fines in '+$('#date_yearSelect').val(), footer: false, orientation: 'portrait', pageSize: 'LEGAL', exportOptions: { columns: ':visible', modifier: { page: 'all', search: 'none' } } }
+                    ]
+                },
+                'colvis'
+                ]
+            }
+        },
+
+        // table fetch data
+        ajax: {
+            url: '/user_view_attendance_fine_data',
+            dataSrc: 'data',
+            data: function (a) {
+                var statusSelect = $('#statusSelect').val();
+                var pay_statusSelect = $('#pay_statusSelect').val();
+                var date_yearSelect = $('#date_yearSelect').val();
+
+                // Make sure these are mapped to the correct request params
+                a.status = statusSelect;
+                a.pay_status = pay_statusSelect;
+                a.date_year = date_yearSelect;
+            }
+        },
+
+        columns: [
+            { data: 'event_name' },
+            { data: 'event_date' },
+            { data: 'activity_name' },
+            { data: 'time_in' },
+            { data: 'time_out' },
+            { data: 'fines' },
+            { data: 'status' },
+            { data: 'payment_status' }
+        ]
+    });
+
+    // ✅ Event handlers must go OUTSIDE the DataTable initialization
+    $('#date_yearSelect,#statusSelect,#pay_statusSelect').change(function () {
+        user_attendance_table.ajax.reload(null, false);
+    });
+
+    $("#refresh").click(function () {
+        $("#statusSelect").val("");
+        $("#pay_statusSelect").val("");
+        $("#statusSelect, #pay_statusSelect").trigger("change");
+    });
+});
+</script>
+
+{% endblock %}

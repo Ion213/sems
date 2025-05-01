@@ -1,0 +1,516 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE ACTIVITIES
+{% endblock %}
+
+{% block content %} 
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin/dashboard.css') }}">
+
+<div class="container mt-4">
+<div class="border p-3">
+  <div class="dashboard-header">
+    <h2 class="dashboard-title">
+      <i class="fa-solid fa-gauge"></i>Dashboard
+    </h2>
+    <p class="mb-0"></p>
+  </div>
+
+  <!-- Year Filter -->
+  <div class="year-filter">
+    <label for="yearSelect">
+      <i class="fas fa-filter me-2"></i>Filter by Year:
+    </label>
+    <select id="yearSelect" class="form-select">
+      {% for year in years %}
+        <option value="{{ year }}" {% if year == current_year %} selected {% endif %}>{{ year }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Metric Cards -->
+  <div class="row g-4 mb-4">
+
+  <div class="col-md-6 col-lg-3">
+      <div class="metric-card">
+        <div class="card-body">
+          <div class="metric-label">Total Registered Students</div>
+          <div id="student_count" class="metric-value"></div>
+          <i class="fas fa-users metric-icon"></i>
+
+          <div class="sub-metrics">
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">BSIS</div>
+              <div id="bsis_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">TOURISM</div>
+              <div id="tourism_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">EDUCATION</div>
+              <div id="educ_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">CRIMINOLOGY</div>
+              <div id="crim_count" class="sub-metric-value">0</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    
+
+    <div class="col-md-6 col-lg-3">
+      <div class="metric-card">
+        <div class="card-body">
+          <div class="metric-label">All Scheduled Events <span id="eventYear" class="text-muted"></span></div>
+
+        <i class="fas fa-calendar metric-icon"></i>
+          <div id="event_count" class="metric-value"></div>
+
+          <div class="sub-metrics">
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Upcoming</div>
+              <div id="upcoming_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Ongoing</div>
+              <div id="ongoing_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Completed</div>
+              <div id="completed_count" class="sub-metric-value">0</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+
+    <div class="col-md-6 col-lg-3">
+      <div class="metric-card">
+        <div class="card-body">
+          <div class="metric-label">Total Unpaid Fines <span id="unpaidYear" class="text-muted"></span></div>
+          <div id="unpaid_fines_value" class="metric-value"></div>
+          <i class="fas fa-exclamation-circle metric-icon"></i>
+
+          <div class="sub-metrics">
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Unpaid Students</div>
+              <div id="fines_count" class="sub-metric-value">0</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3">
+      <div class="metric-card">
+        <div class="card-body">
+          <div class="metric-label">Total Paid Fines <span id="paidYear" class="text-muted"></span></div>
+          <div id="paid_fines_value" class="metric-value"></div>
+          <i class="fas fa-coins metric-icon"></i>
+
+          <div class="sub-metrics">
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Fully Paid Students</div>
+              <div id="fully_paid_count" class="sub-metric-value">0</div>
+            </div>
+
+            <div class="sub-metric-item">
+              <div class="sub-metric-label">Initially Paid Students</div>
+              <div id="initially_paid_count" class="sub-metric-value">0</div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <div class="card-header">
+        <span>
+          <i class="fa-solid fa-clipboard-user"></i> Attendance Overview <span id="attendanceYear" class="text-muted"></span>
+        </span>
+        </div>
+        <div class="card-body">
+         <canvas id="attendanceChart"></canvas>
+
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="chart-card">
+        <div class="card-header">
+          <span>
+        <i class="fa-solid fa-file-invoice-dollar"></i> Payments Overview <span id="paymentYear" class="text-muted"></span>
+      </span>
+        </div>
+        <div class="card-body">
+          <canvas id="paymentBarChart"></canvas>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+
+
+  $('#yearSelect').on('change', function() {
+    var selected_year = $(this).val();
+
+    d_schedule_count(selected_year);
+    d_unpaid_fines(selected_year)
+    d_paid_fines(selected_year)
+    loadAttendanceChart(selected_year);
+    loadPaymentChart(selected_year); // Add this
+
+    d_student_count()
+
+    $('#paymentYear').text(selected_year); // initial set
+    $('#attendanceYear').text(selected_year); // initial set
+     $('#eventYear').text(selected_year); // initial set
+     $('#paidYear').text(selected_year); // initial set
+     $('#unpaidYear').text(selected_year); // initial set
+  });
+
+
+  //events
+  function d_schedule_count(selected_year) {
+    if (!selected_year){
+      return
+    }
+    $.ajax({
+      url: '/d_schedule_count',
+      type: 'GET',
+      data: { selected_year: selected_year },
+      success: function(response) {
+        $('#upcoming_count').text(response.upcoming_count);
+        $('#ongoing_count').text(response.ongoing_count);
+        $('#completed_count').text(response.completed_count);
+        $('#event_count').text(response.event_count);
+      },
+      error: function(err) {
+        console.error('Error loading data:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load event data'
+        });
+      }
+    });
+  }
+
+  //unpaid fines
+  function d_unpaid_fines(selected_year) {
+    if (!selected_year){
+      return
+    }
+    $.ajax({
+      url: '/d_unpaid_fines',
+      type: 'GET',
+      data: { selected_year: selected_year },
+      success: function(response) {
+        $('#unpaid_fines_value').text(response.fines);
+        $('#fines_count').text(response.fines_count);
+      },
+      error: function(err) {
+        console.error('Error loading data:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load unpaid fines data'
+        });
+      }
+    });
+  }
+
+  
+
+
+  //students
+  function d_student_count() {
+  $.ajax({
+    url: '/d_student_count',
+    type: 'GET',
+    success: function(response) {
+      $('#student_count').text(response.student_count);
+      $('#bsis_count').text(response.bsis_count);
+      $('#crim_count').text(response.crim_count);
+      $('#tourism_count').text(response.tourism_count);
+      $('#educ_count').text(response.educ_count);
+    },
+    error: function(err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load student data'+ err
+      });
+    }
+  });
+}
+
+
+
+//paid fines
+  function d_paid_fines(selected_year) {
+    if (!selected_year){
+      return
+    }
+    $.ajax({
+      url: '/d_paid_fines',
+      type: 'GET',
+      data: { selected_year: selected_year },
+      success: function(response) {
+        $('#paid_fines_value').text(response.paid_fines);
+        $('#fully_paid_count').text(response.full_paid_count);
+        $('#initially_paid_count').text(response.initially_paid_count);
+      },
+      error: function(err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load paid fines data'+ err
+        });
+      }
+    });
+  }
+
+//attendance chart
+function loadAttendanceChart(selected_year) {
+  if (!selected_year){
+      return
+    }
+  $.ajax({
+    url: '/attendance_chart_data',
+    type: 'GET',
+    data: { selected_year: selected_year },
+    success: function (data) {
+      const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+      if (window.attendanceChartInstance) {
+        window.attendanceChartInstance.destroy();
+      }
+
+      const labels = data.map(d => `${d.event_schedule} - ${d.event_name}`);
+      const attendedData = data.map(d => d.attended);
+      const absentData = data.map(d => d.absent);
+      const missedOutData = data.map(d => d.missed_out);
+
+      window.attendanceChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Attended',
+              data: attendedData,
+              borderColor: '#4CAF50',
+              backgroundColor: 'rgba(76, 175, 80, 0.2)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Absent',
+              data: absentData,
+              borderColor: '#F44336',
+              backgroundColor: 'rgba(244, 67, 54, 0.2)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Missed Out',
+              data: missedOutData,
+              borderColor: '#FFEB3B',
+              backgroundColor: 'rgba(255, 235, 59, 0.2)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          
+          plugins: {
+            title: {
+              display: true,
+              text: `Attendance per Event - ${selected_year}`
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `${context.dataset.label}: ${context.parsed.y}`;
+                }
+              }
+            },
+            legend: {
+              position: 'bottom'
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '(Date - Event - Activity)'
+              },
+              ticks: {
+                autoSkip: false,
+                maxRotation: 90,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'No. of Students'
+              }
+            }
+          }
+        }
+      });
+    },
+    error: function (err) {
+      console.error('Error:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.responseJSON?.error || 'Failed to load attendance data.'
+      });
+    }
+  });
+}
+
+
+//payments chart
+function loadPaymentChart(selected_year) {
+  if (!selected_year){
+      return
+    }
+  $.ajax({
+    url: '/payment_chart_data',
+    type: 'GET',
+    data: { selected_year: selected_year },
+    success: function (data) {
+      const ctx = document.getElementById('paymentBarChart').getContext('2d');
+
+      if (window.paymentChartInstance) {
+        window.paymentChartInstance.destroy();
+      }
+
+      const labels = data.map(d => `${d.event_schedule} - ${d.event_name}`);
+      const paidData = data.map(d => d.amount_paid_for_this_event);
+      const unpaidData = data.map(d => d.amount_unpaid_for_this_event);
+
+      window.paymentChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Paid (₱)',
+              data: paidData,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: 'Unpaid (₱)',
+              data: unpaidData,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,  // Let the chart fill the container
+          plugins: {
+            title: {
+              display: true,
+              text: `Event Payments Over Time - ${selected_year}`
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  return `${context.dataset.label}: ₱${context.parsed.y.toLocaleString()}`;
+                }
+              }
+            },
+            legend: {
+              position: 'bottom'
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: '(Date - Event)'
+              },
+              ticks: {
+                autoSkip: false,
+                maxRotation: 90,
+                minRotation: 45
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Amount (₱)'
+              }
+            }
+          }
+        }
+
+      });
+    },
+    error: function (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.responseJSON?.error || 'Failed to load payment data.' + err
+      });
+    }
+  });
+}
+
+
+
+
+
+  // Auto-trigger load for the initial selected year
+  $('#yearSelect').trigger('change');
+});
+</script>
+{% endblock %}

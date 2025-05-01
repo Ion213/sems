@@ -1,0 +1,134 @@
+{% extends 'public/p_nav.html' %}
+
+{% block title %}
+    EVENT PREVIEW
+{% endblock %}
+
+{% block content %}
+<!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public/event_preview.css') }}">
+
+<div class="event-container">
+    <div class="event-header">
+        <h2><i class="fas fa-calendar-alt"></i> Event Preview</h2>
+        <p class="text-muted">View upcoming and ongoing events</p>
+    </div>
+
+    <ul class="nav nav-tabs" id="eventTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#upcoming-tab">
+                <i class="fas fa-clock"></i> Upcoming Events
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#ongoing-tab">
+                <i class="fas fa-hourglass-half"></i> Ongoing Events
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-4">
+        <!-- Upcoming Events Tab -->
+        <div class="tab-pane fade show active" id="upcoming-tab">
+            {% if upcoming_events %}
+                {% for event in upcoming_events %}
+                    <div class="event-card">
+                        <div class="event-card-header">
+                            <h3>{{ event.name }}</h3>
+                        </div>
+                        <div class="event-card-body">
+                            <div class="event-meta">
+                                <span class="event-date">
+                                    <i class="fas fa-calendar-day"></i>
+                                    {{ event.scheduled_date.strftime('%Y-%B-%d-%A') }}
+                                </span>
+                            </div>
+                            <p hidden class="event-time">{{ event.scheduled_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            
+                            <div class="event-countdown text-primary">
+                                <i class="fas fa-hourglass-start"></i> Start in: <span>00d 00h 00m 00s</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-events">
+                    <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                    <h4>No Upcoming Events</h4>
+                    <p>Check back later for scheduled events</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Ongoing Events Tab -->
+        <div class="tab-pane fade" id="ongoing-tab">
+            {% if ongoing_events %}
+                {% for event in ongoing_events %}
+                    <div class="event-card">
+                        <div class="event-card-header" style="background: var(--secondary-color);">
+                            <h3>{{ event.name }}</h3>
+                        </div>
+                        <div class="event-card-body">
+                            <div class="event-meta">
+                                <span class="event-date" style="background: rgba(46, 204, 113, 0.1); color: var(--secondary-color);">
+                                    <i class="fas fa-calendar-check"></i>
+                                    {{ event.scheduled_date.strftime('%B %d, %Y') }}
+                                </span>
+                            </div>
+                            <p hidden class="event-time">{{ event.scheduled_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            <div class="event-countdown text-success">
+                                <i class="fas fa-hourglass-end"></i> <span>00d 00h 00m 00s</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-events">
+                    <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                    <h4>No Ongoing Events</h4>
+                    <p>There are currently no events in progress</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        function updateCountdown(element, eventTime) {
+            var now = new Date().getTime();
+            var timeLeft = eventTime - now;
+
+            if (timeLeft > 0) {
+                var days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                element.find('span').text(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+            } else {
+                element.find('span').text("Event is Ongoing!");
+                element.removeClass('text-primary').addClass('text-success');
+            }
+        }
+
+        // Update event countdowns
+        $(".event-time").each(function () {
+            var eventTime = new Date($(this).text()).getTime();
+            var countdownElement = $(this).closest(".event-card-body").find(".event-countdown");
+
+            function updateEventCountdown() {
+                updateCountdown(countdownElement, eventTime);
+            }
+
+            updateEventCountdown();
+            setInterval(updateEventCountdown, 1000);
+        });
+    });
+</script>
+
+{% endblock %}

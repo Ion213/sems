@@ -1,0 +1,203 @@
+{% extends 'user/u_nav.html' %}
+
+{% block title %}
+    User Profile
+{% endblock %}
+
+{% block content %}
+
+<!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/view_profile.css') }}">
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Profile Picture and QR Code -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="qrcode-container">
+                    <h5><i class="fas fa-qrcode"></i> Your QR Code</h5>
+                    <div id="qrcode"></div>
+                    <p class="mt-3 text-muted">Scan this code for attendance</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Information -->
+        <div class="col-lg-8 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5><i class="fas fa-user-circle"></i> Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="profile-info">
+                        <p><strong><i class="fas fa-id-card"></i> User ID:</strong> {{ current_user.student_ID }}</p>
+                        <p><strong><i class="fas fa-signature"></i> First Name:</strong> {{ current_user.first_name }}</p>
+                        <p><strong><i class="fas fa-signature"></i> Last Name:</strong> {{ current_user.last_name }}</p>
+                        <p><strong><i class="fas fa-envelope"></i> Email:</strong> {{ current_user.email }}</p>
+                        <p><strong><i class="fas fa-university"></i> Department:</strong> 
+                            {{ current_user.department.name }}</p>
+                        <p><strong><i class="fas fa-calendar-alt"></i> Year & Section:</strong> 
+                            {{ current_user.department.year }} | {{ current_user.department.section }}</p>
+                    </div>
+                </div>
+                <div class="card-footer text-center bg-light">
+                    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="changePasswordModalLabel"><i class="fas fa-key"></i> Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="currentPassword"><i class="fas fa-lock"></i> Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="current_password" required minlength="6" maxlength="20" placeholder="6-20 characters">
+                        <i class="fas fa-eye password-toggle" id="toggleCurrentPassword"></i>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="newPassword"><i class="fas fa-lock-open"></i> New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="new_password" required minlength="6" maxlength="20" placeholder="6-20 characters">
+                        <i class="fas fa-eye password-toggle" id="toggleNewPassword"></i>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="confirmPassword"><i class="fas fa-lock"></i> Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirm_password" required minlength="6" maxlength="20" placeholder="6-20 characters">
+                        <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                    </div>
+                    <div id="passwordMessage" class="mt-3 alert" style="display: none;"></div>
+                    <button type="submit" class="btn btn-success mt-4">
+                        <i class="fas fa-save"></i> Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    
+    // Generate QR Code with student_ID
+    let studentID = "{{ current_user.student_ID }}";
+    if (studentID) {
+        new QRCode(document.getElementById("qrcode"), {
+            text: studentID,
+            width: 150,
+            height: 150
+        });
+    }
+
+    // Password toggle functionality
+    function setupPasswordToggle(eyeIconId, inputId) {
+        const eyeIcon = $(eyeIconId);
+        const passwordInput = $(inputId);
+        
+        eyeIcon.on('click', function() {
+            const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+            passwordInput.attr('type', type);
+            eyeIcon.toggleClass('fa-eye fa-eye-slash');
+        });
+    }
+
+    // Set up toggle for all password fields
+    setupPasswordToggle('#toggleCurrentPassword', '#currentPassword');
+    setupPasswordToggle('#toggleNewPassword', '#newPassword');
+    setupPasswordToggle('#toggleConfirmPassword', '#confirmPassword');
+
+    // Handle Change Password Form Submission
+    $("#changePasswordForm").submit(function(e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Changing...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        
+        // Clear previous messages
+        $("#passwordMessage").html('').hide();
+        
+        let currentPassword = $("#currentPassword").val();
+        let newPassword = $("#newPassword").val();
+        let confirmPassword = $("#confirmPassword").val();
+
+        // Validate passwords match
+        if (newPassword !== confirmPassword) {
+            $("#passwordMessage").html('<div class="alert alert-danger">confirm password do not match.</div>').show();
+            Swal.close();
+            return;
+        }
+
+        // Validate password length
+        if (newPassword.length < 6 || newPassword.length > 20) {
+            $("#passwordMessage").html('<div class="alert alert-danger">Password must be between 6-20 characters.</div>').show();
+            Swal.close();
+            return;
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,20}$/;
+            if (!passwordRegex.test(newPassword)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Weak Password",
+                    text: "Password must be 6-20 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.",
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+                
+                return;
+            }
+
+        
+
+        // Send AJAX request
+        $.ajax({
+            url: "{{ url_for('change_password.user_change_password') }}",
+            type: "POST",
+            data: {
+                current_password: currentPassword,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            },
+            success: function(response) {
+                Swal.close();
+                if (response.success) {
+                    $("#passwordMessage").html('<div class="alert alert-success">' + response.message + '</div>').show();
+                    $("#changePasswordForm")[0].reset();
+                    setTimeout(function() { 
+                        $("#changePasswordModal").modal('hide');
+                        $("#passwordMessage").hide();
+                    }, 5000);
+                } else {
+                    $("#passwordMessage").html('<div class="alert alert-danger">' + response.message + '</div>').show();
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.close();
+                $("#passwordMessage").html('<div class="alert alert-danger">An error occurred: ' + (xhr.responseJSON?.message || 'Please try again') + '</div>').show();
+            }
+        });
+    });
+
+    // Reset form when modal is closed
+    $('#changePasswordModal').on('hidden.bs.modal', function () {
+        $("#changePasswordForm")[0].reset();
+        $("#passwordMessage").html('').hide();
+        // Reset eye icons
+        $('.password-toggle').removeClass('fa-eye-slash').addClass('fa-eye');
+        $('input[type="password"]').attr('type', 'password');
+    });
+});
+</script>
+{% endblock %}

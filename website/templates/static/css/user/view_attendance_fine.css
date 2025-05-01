@@ -1,0 +1,207 @@
+:root {
+    --primary-dark: #2980b9;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --light-bg: rgba(255, 255, 255, 0.95);
+    --dark-text: #2c3e50;
+    --light-text: #ecf0f1;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+     background-color: hsl(134, 36%, 58%);
+}
+
+.container {
+    max-width: 100%;
+    padding: 5px;
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    background: var(--light-bg);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 5px;
+}
+
+h3 {
+    color: var(--dark-text);
+    font-weight: 700;
+}
+
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #7f8c8d;
+    font-weight: 600;
+    padding: 5px 5px;
+    transition: var(--transition);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    background: transparent;
+}
+
+.nav-tabs .nav-link:hover:not(.active) {
+    color: var(--primary-dark);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--border-radius);
+}
+
+.table {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 5px 5px;
+}
+
+.table tbody tr {
+    transition: var(--transition);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+/* Status badges */
+.badge {
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.badge-paid {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.badge-unpaid {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Current balance highlight */
+#current-balance {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--warning-color);
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid #eee;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+/* Tab content animation */
+.tab-pane {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Icons */
+.fa-solid {
+    margin-right: 8px;
+}
+
+#date_yearSelect {
+    height: 30px; /* Adjust height */
+    padding: 2px 8px; /* Reduce padding */
+    font-size: 14px; /* Reduce font size */
+    width: auto; /* Make it fit the content */
+    display: inline-block; /* Prevent full width */
+    }
+
+    #statusSelect {
+        height: 30px; /* Adjust height */
+        padding: 2px 8px; /* Reduce padding */
+        font-size: 14px; /* Reduce font size */
+        width: auto; /* Make it fit the content */
+        display: inline-block; /* Prevent full width */
+        }
+
+        #pay_statusSelect {
+            height: 30px; /* Adjust height */
+            padding: 2px 8px; /* Reduce padding */
+            font-size: 14px; /* Reduce font size */
+            width: auto; /* Make it fit the content */
+            display: inline-block; /* Prevent full width */
+            }

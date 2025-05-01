@@ -1,0 +1,186 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE SSG ACCOUNT
+{% endblock %}
+
+{% block content %}
+
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_ssg_account.css') }}">
+
+<div class="container mt-5">
+
+    <div class="border p-3 bg-opacity-25 ">
+    <h2 class="text-center fw-bold mb-4">👥 Manage SSG Account</h2>
+        <div class="row">
+            <!-- Add ssg Form (Smaller) -->
+            <div class="col-sm-12 col-md-3 col-lg-2 col-xl-2" >
+                <div class="border p-3">
+                
+                    <h1 class="fs-3 fw-bold fst-italic"> <i class="fa-solid fa-person-circle-plus"></i> Add SSG Account</h1>
+                    <form id="add_ssg_form" method="POST">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">SSG Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ssg_name" class="form-label">SSG Name</label>
+                            <input type="text" class="form-control" id="ssg_name" name="ssg_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" required minlength="6" maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordSSG">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>Add Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- student Table (Larger) -->
+            <div class="col-sm-12 col-md-9 col-lg-10 col-xl-10 ">
+            <div class="border p-3">
+                <h1 class="fs-3 fw-bold fst-italic">SSG Accounts:</h1>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped" id="ssg_table" class="display" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>SSG Name</th>
+                                <th>SSG Email</th>
+                                <th>Password</th>
+                               <th>Date Registered</th>
+                                 <!--<th>Date Updated</th>-->
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            </div>
+
+            <br>
+        </div>
+    </div>
+</div>
+
+<!--update student account modal-->
+<div class="modal fade" id="update_ssg_account_modal" tabindex="-1" aria-labelledby="update_ssg_account_modal_label" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_ssg_account_modal_label">Update SSG Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_ssg_account_form">
+                        <input type="hidden" id="selected_ssg_account_id" name="selected_ssg_account_id">
+                        <div class="mb-3">
+                            <label for="update_email" class="form-label">SSG Email</label>
+                            <input type="email" class="form-control" id="update_email" name="update_email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_ssg_name" class="form-label">SSG Full Name</label>
+                            <input type="text" class="form-control" id="update_ssg_name" name="update_ssg_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="update_password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="update_password" name="update_password" required minlength="6" maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordUpdateSSG">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
+                        </div>
+                    <button type="submit" class="btn btn-primary" id="save_changes">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal view logs -->
+<!-- Modal view logs -->
+<div class="modal fade" id="viewLogsModal" tabindex="-1" aria-labelledby="viewLogsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document"> <!-- modal-lg for bigger size -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewLogsModalLabel">Login Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;"> <!-- Added style here -->
+                <ul class="list-group" id="logsList">
+                    <!-- Logs will be appended here dynamically -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="clearLogsBtn">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/ssg_account_table.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/add_ssg_account.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/delete_ssg_account.js') }}">
+</script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/update_ssg_account.js') }}">
+</script>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/ssg_logs.js') }}">
+</script>
+
+
+<script>
+
+//forms behaviours
+$(document).ready(function () {
+    $("#togglePasswordSSG").click(function () {
+        let passwordField = $("#password");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+$(document).ready(function () {
+    $("#togglePasswordUpdateSSG").click(function () {
+        let passwordField = $("#update_password");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

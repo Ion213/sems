@@ -1,0 +1,114 @@
+{% extends 'public/p_nav.html' %}
+
+{% block title %}
+    USER LOGIN
+{% endblock %}
+
+{% block content %}
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth/login_page.css') }}">
+<div class="login-container">
+    <div class="login-card">
+        <div class="card-header">
+            <h3><i class="fas fa-sign-in-alt"></i> USER LOGIN</h3>
+        </div>
+        <div class="card-body">
+            <form id="user_login_form">
+                <div class="form-group">
+                    <input type="email" class="form-control" name="email" id="email" placeholder=" " required>
+                    <span class="floating-placeholder">Email Address</span>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="password" class="form-control" name="password" id="password" placeholder=" " required minlength="6" maxlength="20">
+                        <span class="floating-placeholder">Password</span>
+                        <button class="password-toggle" type="button" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small class="form-text">Password must be 6-20 characters long</small>
+                </div>
+                <button type="submit" class="btn btn-login">LOGIN</button>
+                
+                <hr>
+
+                <div class="form-links">
+                    <a href="{{ url_for('forgot_password.forgot_password_page') }}" class="form-link">Forgot Password?</a>
+                    <span class="link-separator">|</span>
+                    <a href="{{ url_for('signup.signup_page') }}" class="form-link">SignUp</a>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#account_button').hide();
+
+
+
+        // Show/Hide Password Functionality
+        $("#togglePassword").click(function () {
+            let passwordField = $("#password");
+            let icon = $(this).find("i");
+
+            if (passwordField.attr("type") === "password") {
+                passwordField.attr("type", "text");
+                icon.removeClass("fa-eye").addClass("fa-eye-slash");
+            } else {
+                passwordField.attr("type", "password");
+                icon.removeClass("fa-eye-slash").addClass("fa-eye");
+            }
+        });
+
+        // Login Form Submission
+        $("#user_login_form").submit(function (event) {
+            event.preventDefault(); // Prevent default form submission
+            Swal.fire({
+                    title: 'redirecting...',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+            $.ajax({
+                url: "{{ url_for('login.login_page') }}",  // Ensure it's correct
+                type: "POST",
+                data: $(this).serialize(), // Serialize form data
+                dataType: "json",
+                success: function (data) {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Login Successful",
+                            text: data.message,
+                            timer: 1500,
+                            timerProgressBar: true
+                        }).then(() => {
+                            window.location.href = data.redirect_url;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Login Failed",
+                            text: data.message,
+                            timer: 3000,
+                            timerProgressBar: true
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: "Something went wrong. Please try again later." + error,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

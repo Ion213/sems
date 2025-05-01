@@ -1,0 +1,11 @@
+#use python 3.11.x
+flask
+Flask-SQLAlchemy
+flask-login
+pytz
+Flask-Limiter
+apscheduler 
+python-dateutil
+Flask-Migrate
+flask-mail
+pymysql

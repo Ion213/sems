@@ -1,0 +1,253 @@
+:root {
+
+    --accent-color: #CDDC39;
+    --dark-color: #2E7D32;
+    --light-color: #F1F8E9;
+    --text-dark: #212121;
+    --text-light: #757575;
+  }
+
+  body {
+    background-color: hsl(134, 36%, 58%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .container {
+    max-width: 1800px;
+    padding: 20px;
+  }
+
+  .dashboard-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(30deg);
+  }
+
+  .dashboard-title {
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .dashboard-title i {
+    margin-right: 15px;
+    font-size: 1.8rem;
+  }
+
+  .metric-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    overflow: hidden;
+    background: white;
+  }
+
+  
+  .metric-card {
+    max-height: 200px; /* Set max height */
+    overflow: hidden; /* Hide scrollbar initially */
+    position: relative; /* Required for pseudo-elements */
+  }
+  
+  .metric-card:hover {
+    overflow-y: auto; /* Show vertical scrollbar on hover */
+    overflow-x: auto; /* Show horizontal scrollbar on hover */
+  }
+  
+  .metric-card::-webkit-scrollbar {
+    width: 8px; /* Width of the vertical scrollbar */
+    height: 8px; /* Height of the horizontal scrollbar */
+  }
+  
+  .metric-card::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2); /* Scrollbar color */
+    border-radius: 10px;
+  }
+  
+  .metric-card::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Background of the scrollbar track */
+  }
+
+
+  
+
+  .metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+
+  .metric-card .card-body {
+    padding: 1.5rem;
+    position: relative;
+  }
+
+  .metric-card .metric-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .metric-card .metric-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+  }
+
+  .metric-card .metric-icon {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    font-size: 1.8rem;
+    color: rgba(76, 175, 80, 0.2);
+  }
+
+  .chart-card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: white;
+    height: 100%;
+  }
+
+  .chart-card .card-header {
+    background: transparent;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 600;
+    color: var(--text-dark);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .chart-card .card-header i {
+    margin-right: 10px;
+    color: var(--primary-color);
+  }
+
+  .chart-card .card-body {
+    padding: 1.5rem;
+  }
+
+  .chart-placeholder {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #adb5bd;
+    font-weight: 600;
+  }
+
+  .year-filter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .year-filter label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0;
+  }
+
+  #yearSelect {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    width: auto;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  }
+
+  .status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-upcoming {
+    background-color: #FFF3E0;
+    color: #E65100;
+  }
+
+  .badge-ongoing {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+  }
+
+  .badge-completed {
+    background-color: #E3F2FD;
+    color: #1565C0;
+  }
+
+  .sub-metrics {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .sub-metric-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.03);
+  }
+
+  .sub-metric-label {
+    font-size: 0.7rem;
+    color: var(--text-light);
+  }
+
+  .sub-metric-value {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
+
+.border {
+    border: 1px solid rgba(0, 255, 0, 0.3) !important;
+    border-radius: 10px;
+    background: rgba(242, 237, 237, 0.6);
+    backdrop-filter: blur(10px);
+}
+
+#paymentBarChart {
+  width: 100% !important;  /* Make it take up 100% width */
+  height: 400px !important;  /* Set a fixed height */
+}
+
+#attendanceChart {
+  width: 100% !important;  /* Make it take up 100% width */
+  height: 400px !important;  /* Set a fixed height */
+}

@@ -1,0 +1,418 @@
+{% extends 'admin/nav.html' %}
+
+{% block title %}
+    MANAGE ATTENDANCE
+{% endblock %}
+
+{% block content %}
+
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/manage_attendance.css') }}">
+
+<div class="container mt-5">
+    <div class="border p-3 bg-opacity-25">
+        <h2 class="text-center fw-bold mb-4">📋 Manage Attendance</h2>
+        <ul class="nav nav-tabs" id="eventTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing"
+                type="button" role="tab" aria-controls="ongoing" aria-selected="true">
+                    Ongoing Event ⏳
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed"
+                type="button" role="tab" aria-controls="completed" aria-selected="false">
+                    Completed Events ✔️
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Ongoing Events Tab -->
+            <div class="tab-pane fade show active" id="ongoing" role="tabpanel" aria-labelledby="ongoing-tab">
+                <div class="row">
+                    <div class="col-sm-12 col-md-3 col-lg-2 col-xl-2">
+                        <div class="border p-3">
+                            <strong class="fs-3 fw-bold fst-italic mb-3">
+                                <i class="fa-solid fa-marker"></i> Add Attendees
+                            </strong>
+                            <br>
+                            <form>
+                                <div class="mb-3">
+                                    <label for="user-search" class="form-label">
+                                        Input Student Name
+                                    </label>
+                                    <input type="text" id="user-search" class="form-control" name="user-search"
+                                    placeholder="Input Student Name">
+                                    <ul id="user-list" class="list-group mt-2" 
+                                        style="max-height: 200px; overflow-y: auto; 
+                                            scrollbar-width: thin; /* For Firefox */
+                                            -ms-overflow-style: none; /* For IE and Edge */">
+                                        <!-- User items will be appended here via JavaScript -->
+                                    </ul>
+                                </div>
+                            </form>
+
+                            <div class="d-flex align-items-center my-3">
+                                <hr class="flex-grow-1">
+                                <strong class="mx-3 text-center">or</strong>
+                                <hr class="flex-grow-1">
+                            </div>
+                            
+                            <strong class="fs-3 fw-bold fst-italic mb-3">
+                                <i class="fa-solid fa-qrcode"></i> Use QR Code
+                            </strong>
+
+                            <br>
+                            <div class="mb-3">
+                                <button id="scan-btn-in" class="btn btn-success w-100" style="display: inline;">
+                                    <i class="fa-solid fa-camera"></i> IN
+                                </button>
+                                <br>
+                                <button id="scan-btn-out" class="btn btn-warning w-100" style="display: inline;">
+                                    <i class="fa-solid fa-camera"></i> OUT
+                                </button>
+                            </div>
+                            <div class="camera-select-container">
+                                <select id="camera-select"></select>
+                            </div>
+                            <div style="margin: auto; display: block;" id="reader"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-12 col-md-9 col-lg-10 col-xl-10">
+
+                    <div class="container mt-3">
+                    <div class="row g-3">
+                        <!-- Event Info Section -->
+                        <div class="col-lg-6">
+                            <div class="p-3 border rounded bg-white bg-opacity-75 h-100">
+                                <h5 class="mb-0 text-muted">Current Event:</h5>
+                                <div class="event-title">
+                                    {% if ongoing_event %}
+                                        <h2 class="fw-bold mb-1 text-dark">{{ ongoing_event.name }}</h2>
+                                        <div class="event-date badge bg-success bg-opacity-10 text-success">
+                                            <i class="fas fa-calendar-alt me-2" style="font-size: 1.5rem;"></i>
+                                            {{ ongoing_event.scheduled_date.strftime('%A, %B %d, %Y') }}
+                                        </div>
+                                    {% else %}
+                                        <div class="alert alert-warning mt-2 mb-0 d-inline-block">
+                                            <i class="fas fa-exclamation-circle me-2"></i>No Ongoing Event Scheduled
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Dropdown + Countdown -->
+                        <div class="col-lg-6">
+                            <div class="p-3 border rounded bg-white bg-opacity-75 h-100">
+                                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+                                    <!-- Dropdown -->
+                                    <div class="flex-grow-1">
+                                        <label for="activityComboBox" class="fw-bold mb-1">
+                                            <i class="fas fa-tasks me-2"></i>Select Activity:
+                                        </label>
+                                        <select id="activityComboBox" name="activityComboBox"
+                                                class="form-select form-select-lg shadow-sm"
+                                                style="background: rgba(255, 255, 255, 0.9); border-left: 4px solid #28a745;" required>
+                                            {% if activities %}
+                                                {% for activity in activities %}
+                                                    <option value="{{ activity.id }}"
+                                                            data-start="{{ activity.start_time.strftime('%Y-%m-%d %H:%M:%S') }}"
+                                                            data-end="{{ activity.end_time.strftime('%Y-%m-%d %H:%M:%S') }}">
+                                                        {{ activity.name }} | {{ activity.start_time.strftime('%I:%M %p') }} - {{ activity.end_time.strftime('%I:%M %p') }}
+                                                    </option>
+                                                {% endfor %}
+                                            {% else %}
+                                                <option value="" disabled selected>No activities available</option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+
+                                    <!-- Countdown Display -->
+                                    <div id="activityCountdown" class="mt-2">
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary p-2">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <span id="countdownText">
+                                                {% if activities %}Loading...{% else %}No activities{% endif %}
+                                            </span>
+                                            <span id="countdownTimer" class="fw-bold">
+                                                {% if activities %}00:00:00{% endif %}
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+
+                        <div class="border p-3">
+                            <div class="table-responsive">
+
+                                <div class="mb-3">
+
+                            <button class="btn bg-light" id="refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="courseSelect">Department:</label>
+                                <select id="courseSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for c in course %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="yearSelect">Year:</label>
+                                <select id="yearSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for y in year %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                <label for="sectionSelect">Section:</label>
+                                <select id="sectionSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for s in section %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+
+                                <hr>
+
+                                <table class="table table-bordered table-striped table-light" id="ongoing_attendance_table"
+                                class="display" style="width:100%" data-attendance-name="{{ ongoing_event.name }}">
+                                    <thead>
+                                        <tr>
+                                        <th></th>
+                                            <th>Student Name</th>
+                                            <th>Department</th>
+                                            <th>Year</th>
+                                            <th>Section</th>
+                                            <th>Time in</th>
+                                            <th>Time out</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Events Tab -->
+            <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                <div class="row">
+                    <!-- Completed Events List -->
+                    <div class="col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                        <div class="border p-3">
+                            <h3>Completed Events</h3>
+                            <hr>
+
+                            <div class="sort-controls d-flex align-items-center gap-2 mb-2">
+
+                            <label for="yearSelects" class="fw-bold"><i class="fa-solid fa-server"></i> Fetch Year Date:</label>
+                            <select id="yearSelects" class="form-control"></select>
+
+                                <span><strong>Sort:</strong></span>
+                                <button id="sortNameAsc" class="btn btn-sm btn-outline-secondary" title="Ascending">
+                                    <i class="fa-solid fa-arrow-up-a-z"></i>
+                                </button>
+                                <button id="sortNameDesc" class="btn btn-sm btn-outline-secondary" title="Descending">
+                                    <i class="fa-solid fa-arrow-down-z-a"></i>
+                                </button>
+                            </div>
+
+                            <div class="mb-3">
+                                <input type="text" id="eventSearchInput" class="form-control" placeholder="Search event...">
+                            </div>
+
+                            
+                                
+
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                <ul id="completed-events-list" class="list-group">
+                                    <li class="list-group-item">Fetching events...</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Attendance Table -->
+                    <div class="col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                        <div class="border p-3">
+                            <div class="table-responsive">
+
+                                 <div class="mb-3">
+
+                            <button class="btn bg-light" id="c_refresh"><i class="fa-solid fa-arrows-rotate"></i></button>
+                                <label for="c_courseSelect">Department:</label>
+                                <select id="c_courseSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for c in course %}
+                                    <option value="{{ c }}">{{ c }}</option>
+                                    {% endfor %}
+                                </select>
+
+                                <label for="c_yearSelect">Year:</label>
+                                <select id="c_yearSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for y in year %}
+                                    <option value="{{ y }}">{{ y }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                <label for="c_sectionSelect">Section:</label>
+                                <select id="c_sectionSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for s in section %}
+                                    <option value="{{ s }}">{{ s }}</option>
+                                    {% endfor %}
+                                    </select>
+
+                                <label for="c_statusSelect">status:</label>
+                                <select id="c_statusSelect" class="form-control">
+                                    <option value="" selected>Not Filtered</option>  <!-- Default option -->
+                                    {% for st in status %}
+                                    <option value="{{ st }}">{{ st }}</option>
+                                    {% endfor %}
+                                    </select>
+                            </div>
+
+                                <hr>
+
+                                <div style="display: flex; justify-content: center; align-items: center; height: 100px;">
+                            <strong id="attendance_name" class="title">SELECT EVENT & ACTIVITY FIRST</strong>
+                            </div>
+
+                                <table class="table table-bordered table-striped table-light" 
+                                    id="completed_event_activity_attendance_table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                        <th></th>
+                                            <th>Student Name</th>
+                                            <th>Department</th>
+                                            <th>Year</th>
+                                            <th>Section</th>
+                                            <th>Time In</th>
+                                            <th>Time Out</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- add student completed attendanceModal -->
+<div class="modal fade" id="add_attendees_completed_activity" tabindex="-1" aria-labelledby="add_attendees_completed_activity_modal_label" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="add_attendees_completed_activity_modal_label">Add Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            <h5 id="activity_title" > activity_name</h5>
+                <div class="mb-3">
+                    <form id="c_add_form">
+                    <label for="c_user-search" class="form-label">
+                        Input Student Name
+                    </label>
+                    <input type="text" id="c_user-search" class="form-control" name="c_user-search"
+                                    placeholder="Input Student Name">
+                    <ul id="c_user-list" class="list-group mt-2" 
+                    style="max-height: 200px; overflow-y: auto; 
+                    scrollbar-width: thin; /* For Firefox */
+                    -ms-overflow-style: none; /* For IE and Edge */"
+                    ></ul>
+
+                    <strong class="fs-3 fw-bold fst-italic mb-3">
+                        <i class="fa-solid fa-qrcode"></i> Use QR Code
+                    </strong>
+                    <div class="mb-3">
+                        <button type="button" id="c_scan-btn-in" class="btn btn-success w-100" style="display: inline;">
+                            <i class="fa-solid fa-camera"></i> IN
+                        </button>
+                        <br>
+                        <button type="button" id="c_scan-btn-out" class="btn btn-warning w-100" style="display: inline;">
+                            <i class="fa-solid fa-camera"></i> OUT
+                        </button>
+
+                    </div>
+                    <div class="camera-select-container">
+                        <select id="c_camera-select"></select>
+                    </div>
+                    <div style="margin: auto; display: block;" id="c_reader"></div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--attendance completed update modal-->
+<div class="modal fade" id="update_attendance_modal" tabindex="-1" aria-labelledby="update_attendance_modal_label" >
+    <div class="modal-dialog" >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="update_attendance_modal_label">Update Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="update_attendance_form">
+                    <input type="hidden" id="attendance_id" name="attendance_id">
+                    <div class="mb-3">
+                        <label for="student_name" class="form-label">Student Name</label>
+                        <input type="text" class="form-control" id="student_name" name="student_name" readonly>
+                    </div>
+                        <div class="mb-3">
+                        <label for="update_status" class="form-label">status:</label>
+                        <select id="update_status" name="update_status" required>
+                            {%for st in status%}
+                            <option value="{{st}}">{{st}}</option>
+                            {%endfor%}
+                        </select>
+
+                        </div>
+                    <button type="submit" class="btn btn-primary" id="confirm_button">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/ongoing_attendance_table.js') }}"></script>
+
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/filter_student.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/add_in_out.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/delete_ongoing_attendance.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/add_in_out_QR.js') }}"></script>
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/completed_event_list.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/update_completed_attendance_status.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/delete_completed_attendance.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/add_in_out_completed.js') }}"></script>
+
+
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/ongoing_event_countdown.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/admin_manage_attendance/tab_state.js') }}"></script>
+
+
+
+{% endblock %}
