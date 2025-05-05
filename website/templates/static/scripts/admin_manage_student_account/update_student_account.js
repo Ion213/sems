@@ -81,6 +81,21 @@ $(document).ready(function(){
 
     $('#update_student_account_form').submit(function(e) {
         e.preventDefault();
+
+        // Student ID Format Validation
+        const studentId_up = $("#update_student_id").val();
+        const studentIdRegex = /^\d+(?:-\d+)+$/;
+        if (!studentIdRegex.test(studentId_up)) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid ID Format",
+                text: "Student ID must contain numbers separated by hyphens (e.g., 2017-21-00062).",
+                timer: 4000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Updating...',
             allowOutsideClick: false,

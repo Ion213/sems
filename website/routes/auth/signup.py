@@ -91,8 +91,12 @@ def signup_page():
             if not student_ID:
                 return jsonify({'success': False, 'message': 'Student ID cannot be empty'})
             
-            if len(str(student_ID)) != 11:
-                return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
+            id_pattern = r'^\d+(?:-\d+)+$'
+            if not re.match(id_pattern, student_ID):
+                return jsonify({'success': False, 'message': 'Invalid Student ID format. It should be numbers separated by hyphens (e.g., 2017-21-00062).'})
+
+            #if len(str(student_ID)) != 11:
+            #    return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
             
             if not first_name:
                 return jsonify({'success': False, 'message': 'Student first name cannot be empty'})
@@ -116,7 +120,7 @@ def signup_page():
             # Password strength check
             password_pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,20}$'
             if not re.match(password_pattern, password):
-                return jsonify({'success': False, 'message': 'Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character.'})
+                return jsonify({'success': False, 'message': 'Password must be 6–20 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.'})
                         
             if password != confirm_password:
                 return jsonify({'success': False, 'message': 'Password not match'})

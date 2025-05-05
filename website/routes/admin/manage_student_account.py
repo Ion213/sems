@@ -161,8 +161,13 @@ def add_student_account():
 
         if not student_ID:
             return jsonify({'success': False, 'message': 'Student ID cannot be empty'})
-        if len(str(student_ID)) != 11:
-            return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
+        
+        id_pattern = r'^\d+(?:-\d+)+$'
+        if not re.match(id_pattern, student_ID):
+            return jsonify({'success': False, 'message': 'Invalid Student ID format. It should be numbers separated by hyphens (e.g., 2017-21-00062).'})
+
+        #if len(str(student_ID)) != 11:
+        #    return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
         if not first_name:
             return jsonify({'success': False, 'message': 'Student first name cannot be empty'})
         if not last_name:
@@ -175,7 +180,7 @@ def add_student_account():
             return jsonify({'success': False, 'message': 'Deparment, year and section cannot be empty'})
         
         if not (6 <= len(password) <= 20):
-            return jsonify({'success': False, 'message': 'Password must between 6 to 20 characters'})
+            return jsonify({'success': False, 'message': 'Password must be 6–20 characters long.'})
         
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, email):
@@ -313,8 +318,13 @@ def update_student_account():
         if not update_student_ID:
             return jsonify({'success': False, 'message': 'Student ID cannot be empty'})
         
-        if len(str(update_student_ID)) != 11:
-            return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
+        id_pattern = r'^\d+(?:-\d+)+$'
+        if not re.match(id_pattern, update_student_ID):
+            return jsonify({'success': False, 'message': 'Invalid Student ID format. It should be numbers separated by hyphens (e.g., 2017-21-00062).'})
+
+        
+        #if len(str(update_student_ID)) != 11:
+        #    return jsonify({'success': False, 'message': 'Student ID must be 11 digits'})
         
         if not update_first_name:
             return jsonify({'success': False, 'message': 'Student first name cannot be empty'})
@@ -328,7 +338,7 @@ def update_student_account():
             return jsonify({'success': False, 'message': 'Deparment, year and section cannot be empty'})
         
         if not (6 <= len(update_password) <= 20):
-            return jsonify({'success': False, 'message': 'Password must between 6 to 20 characters'})
+            return jsonify({'success': False, 'message': 'Password must be 6–20 characters long.'})
         
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, update_email):
@@ -344,6 +354,11 @@ def update_student_account():
             return jsonify({'success': False, 'message': 'Selected Department not found'})
         
         #hashed_password = generate_password_hash(update_passwordV, method='pbkdf2:sha512')
+        
+        existing_student_ID = User.query.filter(
+            User.id != selected_student_account_id,
+            User.student_ID==update_student_ID
+            ).first()
 
         existing_student_name = User.query.filter(
             User.id != selected_student_account_id,
@@ -355,6 +370,9 @@ def update_student_account():
             User.id != selected_student_account_id,
             User.email==update_email,
             ).first()
+        
+        if existing_student_ID:
+            return jsonify({'success': False, 'message': 'Student ID already used'})
         
         if existing_student_name:
             return jsonify({'success': False, 'message': 'Student already exist'})

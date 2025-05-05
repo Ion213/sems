@@ -2,6 +2,22 @@ $(document).ready(function(){
     // ADD STUDENT ACCOUNT
     $('#add_student_form').submit(function(e) {
         e.preventDefault();
+
+        // Student ID Format Validation
+        const studentId = $("#student_id").val();
+        const studentIdRegex = /^\d+(?:-\d+)+$/;
+        if (!studentIdRegex.test(studentId)) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid ID Format",
+                text: "Student ID must contain numbers separated by hyphens (e.g., 2017-21-00062).",
+                timer: 4000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+
         Swal.fire({
             title: 'Adding...',
             allowOutsideClick: false,

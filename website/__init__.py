@@ -45,12 +45,16 @@ def flask_app():
     #app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=7)
     app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=4)
     
+    
+    
     # ✅ Use MySQL instead of SQLite
     # Format: mysql+pymysql://username:password@host/database_name
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     "DATABASE_URL",
-    "mysql+pymysql://root:@localhost/sems_data"
+    "mysql+pymysql://danaotec_sems_admin:%40admin2025@localhost:3306/danaotec_sems"
     )
+    
+
 
     # Email Configuration
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -122,9 +126,9 @@ def flask_app():
     return app
 
 
- 
+''' 
 #sqlite
-'''
+
 # Create database function
 def create_database(app):
     if not os.path.exists(os.path.join(app.root_path,'database', DB_NAME)):

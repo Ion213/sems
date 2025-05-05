@@ -19,7 +19,7 @@
                 <div class="form-row">
 
                     <div class="form-group">
-                            <input type="number" class="form-control" id="student_id" name="student_id"  placeholder=" " min="10000000000" max="99999999999" required >
+                            <input type="text" pattern="^\d+(?:-\d+)+$" class="form-control" id="student_id" name="student_id"  placeholder=" " required >
                             <span class="floating-placeholder">ID No.</span>
                         </div>
 
@@ -156,7 +156,21 @@
                 Swal.fire({
                     icon: "error",
                     title: "Weak Password",
-                    text: "Password must be 6-20 characters long and include at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.",
+                    text: "Password must be 6–20 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+                return;
+            }
+
+            // Student ID Format Validation
+            const studentId = $("#student_id").val();
+            const studentIdRegex = /^\d+(?:-\d+)+$/;
+            if (!studentIdRegex.test(studentId)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid ID Format",
+                    text: "Student ID must contain numbers separated by hyphens (e.g., 2017-21-00062).",
                     timer: 4000,
                     timerProgressBar: true
                 });

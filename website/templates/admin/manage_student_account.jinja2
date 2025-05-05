@@ -39,7 +39,7 @@
                             <form id="add_student_form" method="POST">
                                 <div class="mb-3">
                                     <label for="student_id" class="form-label">Student ID</label>
-                                    <input type="number" class="form-control" id="student_id" name="student_id" min="10000000000" max="99999999999" required >
+                                    <input type="text" pattern="^\d+(?:-\d+)+$" class="form-control" id="student_id" name="student_id" required >
                                     <!-- <button type="button" class="btn btn-light mt-2" id="generate-btn">
                                         <i class="fa-solid fa-dice"></i>
                                     </button> -->
@@ -230,7 +230,7 @@
                     <input type="hidden" id="selected_student_account_id" name="selected_student_account_id">
                     <div class="mb-3">
                         <label for="update_student_id" class="form-label">Student ID</label>
-                        <input type="number" class="form-control" id="update_student_id" name="update_student_id" placeholder="Input ID" min="10000000000" max="99999999999" required>
+                        <input type="text" pattern="^\d+(?:-\d+)+$" class="form-control" id="update_student_id" name="update_student_id" placeholder="Input ID" required>
                         <!-- <button type="button" class="btn btn-light mt-2" id="generate-btn">
                             <i class="fa-solid fa-dice"></i>
                         </button> -->
