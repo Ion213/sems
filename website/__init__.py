@@ -27,7 +27,7 @@ manila_tz = timezone('Asia/Manila')
 
 #create database object
 db=SQLAlchemy()
-#DB_NAME ="database.db"
+DB_NAME ="database.db"
 
 #smtp
 mail = Mail()
@@ -40,20 +40,20 @@ def flask_app():
     
     app = Flask(__name__,static_folder='templates/static')
     app.config['SECRET_KEY']= 'ion21'
-    #db_path = os.path.join(app.root_path, 'database', DB_NAME)
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+    db_path = os.path.join(app.root_path, 'database', DB_NAME)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
     #app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=7)
     app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=4)
     
     
-    
+    '''
     # ✅ Use MySQL instead of SQLite
     # Format: mysql+pymysql://username:password@host/database_name
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     "DATABASE_URL",
     "mysql+pymysql://danaotec_sems_admin:%40admin2025@localhost:3306/danaotec_sems"
     )
-    
+    '''
 
 
     # Email Configuration
@@ -126,7 +126,7 @@ def flask_app():
     return app
 
 
-''' 
+
 #sqlite
 
 # Create database function
@@ -135,6 +135,6 @@ def create_database(app):
         with app.app_context():
             db.create_all()
             
-'''
+
 
 #---------------------------------------------------------------
