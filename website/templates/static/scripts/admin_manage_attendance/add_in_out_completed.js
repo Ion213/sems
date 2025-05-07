@@ -92,7 +92,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: '/add_student_in_completed',
+            url: '/add_student_in',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ 'activity_id': activity_Id,'student_id' :user_Id}), 
@@ -155,7 +155,7 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: '/add_student_out_completed',
+            url: '/add_student_out',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ 'activity_id': activity_Id,'student_id' :user_Id}), 
@@ -361,7 +361,7 @@ function handleQRCode(decodedText, scanType) {
         contentType: 'application/json',
         data: JSON.stringify({ 'activity_id': activity_Id,'student_ID' :student_ID}), 
         success: function(response) {
-            ongoing_attendance_table.ajax.reload(null, false);
+            completed_event_activity_attendance_table.ajax.reload(null, false);
             showNotification(response.success ? 'success' : 'danger', response.message);
             if (response.success) {
                 playSound(successSound);// Play success sound

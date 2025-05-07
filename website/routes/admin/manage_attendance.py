@@ -79,7 +79,7 @@ def manage_attendance_page():
     year = list(year_set)
     section = list(section_set) 
     
-    status=["attended","absent","missed_out"]
+    status=["attended","absent","missed_out","missed_in"]
     
     return render_template(
         'admin/manage_attendance.jinja2',
@@ -118,7 +118,8 @@ def ongoing_attendance_data():
                 Sched_activities.id == selected_activity,
                 or_(
                     Attendance.status == 'attended',
-                    Attendance.status == 'missed_out'
+                    Attendance.status == 'missed_out',
+                    Attendance.status=='missed_in'
                 )
                                  )
         # Apply dynamic filters
@@ -226,6 +227,15 @@ def add_student_in():
         activity=Sched_activities.query.get(activity_id)
         if not activity:
             return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+        
+        
+        event_check=db.session.query(Schedule).filter(
+            Schedule.id==activity.schedule_id,
+            ).first()
+        
+        time=datetime.now(manila_tz).replace(second=0,microsecond=0)
+        if event_check.is_ended:
+            time=activity.start_time
 
         existing_attendance_record = Attendance.query.filter_by(
             student_id=student_id,
@@ -237,7 +247,14 @@ def add_student_in():
             if existing_attendance_record.time_in:
                 return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} already Time In ❌'})
             
-            existing_attendance_record.time_in=datetime.now(manila_tz).replace(second=0,microsecond=0)
+            if existing_attendance_record.time_out:
+                existing_attendance_record.time_in=time
+                existing_attendance_record.status="attended"
+                existing_attendance_record.fines=0
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
+            
+            existing_attendance_record.time_in=time
             existing_attendance_record.status="missed_out"
             existing_attendance_record.fines = (activity.fines / 2) if activity.fines else 0
             db.session.commit()
@@ -248,7 +265,7 @@ def add_student_in():
         attendeeAdd = Attendance(
             sched_activities_id=activity_id, 
             student_id=student_id,  # Ensure the column matches your model
-            time_in=datetime.now(manila_tz).replace(second=0, microsecond=0) , # Set the correct time zone
+            time_in=time , # Set the correct time zone
             status="missed_out",
             fines=activity.fines/2 if activity.fines else 0
         )
@@ -290,6 +307,14 @@ def add_student_out():
         activity=Sched_activities.query.get(activity_id)
         if not activity:
             return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+        
+        event_check=db.session.query(Schedule).filter(
+            Schedule.id==activity.schedule_id,
+            ).first()
+        
+        time=datetime.now(manila_tz).replace(second=0,microsecond=0)
+        if event_check.is_ended:
+            time=activity.end_time
 
         existing_attendance_record = Attendance.query.filter_by(
             student_id=student_id,
@@ -297,21 +322,34 @@ def add_student_out():
         ).first()
 
         if existing_attendance_record:
-            
-            if not existing_attendance_record.time_in:
-                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
-            
             if existing_attendance_record.time_out:
                 return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Already Time Out❌'})
             
-            existing_attendance_record.time_out=datetime.now(manila_tz).replace(second=0,microsecond=0)
+            if not existing_attendance_record.time_in:
+                existing_attendance_record.time_out=time
+                existing_attendance_record.status="missed_in"
+                existing_attendance_record.fines=activity.fines/2 if activity.fines else 0
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
+                #return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
+            
+            existing_attendance_record.time_out=time
             existing_attendance_record.status="attended"
             existing_attendance_record.fines=0
             db.session.commit()
             return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
             
-
-        return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
+        attendeeAdd = Attendance(
+            sched_activities_id=activity_id, 
+            student_id=student_id,  # Ensure the column matches your model
+            time_out=time , # Set the correct time zone
+            status="missed_in",
+            fines=activity.fines/2 if activity.fines else 0
+            )
+        db.session.add(attendeeAdd)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
+        #return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
 
     except Exception as e:
         db.session.rollback()
@@ -414,18 +452,35 @@ def add_student_in_QR():
         activity=Sched_activities.query.get(activity_id)
         if not activity:
             return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+        
+        event_check=db.session.query(Schedule).filter(
+            Schedule.id==activity.schedule_id,
+            ).first()
+        
+        time=datetime.now(manila_tz).replace(second=0,microsecond=0)
+        if event_check.is_ended:
+            time=activity.start_time
 
         existing_attendance_record = Attendance.query.filter_by(
             student_id=student.id,
             sched_activities_id=activity_id  # <-- Add this
         ).first()
+        
+        
 
         if existing_attendance_record:
             
             if existing_attendance_record.time_in:
                 return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} already Time In ❌'})
             
-            existing_attendance_record.time_in=datetime.now(manila_tz).replace(second=0,microsecond=0)
+            if existing_attendance_record.time_out:
+                existing_attendance_record.time_in=time
+                existing_attendance_record.status="attended"
+                existing_attendance_record.fines=0
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
+            
+            existing_attendance_record.time_in=time
             existing_attendance_record.status="missed_out"
             existing_attendance_record.fines = (activity.fines / 2) if activity.fines else 0
             db.session.commit()
@@ -436,7 +491,7 @@ def add_student_in_QR():
         attendeeAdd = Attendance(
             sched_activities_id=activity_id, 
             student_id=student.id,  # Ensure the column matches your model
-            time_in=datetime.now(manila_tz).replace(second=0, microsecond=0) , # Set the correct time zone
+            time_in=time , # Set the correct time zone
             status="missed_out",
             fines=activity.fines/2 if activity.fines else 0
         )
@@ -479,6 +534,15 @@ def add_student_out_QR():
         activity=Sched_activities.query.get(activity_id)
         if not activity:
             return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+        
+        event_check=db.session.query(Schedule).filter(
+            Schedule.id==activity.schedule_id,
+            ).first()
+        
+        time=datetime.now(manila_tz).replace(second=0,microsecond=0)
+        if event_check.is_ended:
+            time=activity.end_time
+            
 
         existing_attendance_record = Attendance.query.filter_by(
             student_id=student.id,
@@ -486,21 +550,34 @@ def add_student_out_QR():
         ).first()
 
         if existing_attendance_record:
-            
-            if not existing_attendance_record.time_in:
-                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
-            
             if existing_attendance_record.time_out:
                 return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Already Time Out❌'})
             
-            existing_attendance_record.time_out=datetime.now(manila_tz).replace(second=0,microsecond=0)
+            if not existing_attendance_record.time_in:
+                existing_attendance_record.time_out=time
+                existing_attendance_record.status="missed_in"
+                existing_attendance_record.fines=activity.fines/2 if activity.fines else 0
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
+                #return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
+            
+            existing_attendance_record.time_out=time
             existing_attendance_record.status="attended"
             existing_attendance_record.fines=0
             db.session.commit()
             return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
             
-
-        return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
+        attendeeAdd = Attendance(
+            sched_activities_id=activity_id, 
+            student_id=student.id,  # Ensure the column matches your model
+            time_out=time , # Set the correct time zone
+            status="missed_in",
+            fines=activity.fines/2 if activity.fines else 0
+            )
+        db.session.add(attendeeAdd)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
+        #return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
 
     except Exception as e:
         db.session.rollback()
@@ -706,7 +783,7 @@ def update_attendance_status():
         if not attendance_id:
             return jsonify({'success': False, 'message': 'sttendance ID not provided'})
 
-        valid_status=["attended","absent","missed_out"]
+        valid_status=["attended","absent","missed_out","missed_in"]
         
         if status not in valid_status:
             return jsonify({'success': False, 'message': 'Invalid Status'})
@@ -731,6 +808,10 @@ def update_attendance_status():
             selected_attendance.time_out=None
             selected_attendance.fines=(selected_attendance.sched_activities.fines/2) if selected_attendance.sched_activities.fines else 0
 
+        if status=="missed_in":
+            selected_attendance.time_in=None
+            selected_attendance.time_out=selected_attendance.sched_activities.end_time
+            selected_attendance.fines=(selected_attendance.sched_activities.fines/2) if selected_attendance.sched_activities.fines else 0
  
         selected_attendance.status=status
         db.session.commit()
@@ -795,132 +876,6 @@ def delete_selected_completed_attendance():
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
-    
-    
-#add attendeess IN completed
-@manage_attendance.route('/add_student_in_completed', methods=['POST'])
-@login_required
-@role_required_multiple('admin', 'ssg')
-def add_student_in_completed():
-    try:
-        
-        student_id = request.json.get('student_id',[])
-        activity_id = request.json.get('activity_id',[])
-        
-
-        if not student_id:
-            return jsonify({'success': False, 'message': 'Student ID not provided ❌'})
-        if not activity_id:
-            return jsonify({'success': False, 'message': 'Activity ID not provided ❌'})
-        
-        student=User.query.filter(
-            User.id==student_id,
-            User.role=="student",
-            User.is_verified==True,
-            User.is_deactivated==False
-            ).first()
-        
-        if not student:
-             return jsonify({'success': False, 'message': 'Student Not Found ❌'})
-            
-
-        activity=Sched_activities.query.get(activity_id)
-        if not activity:
-            return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
-
-        existing_attendance_record = Attendance.query.filter_by(
-            student_id=student_id,
-            sched_activities_id=activity_id  # <-- Add this
-        ).first()
-
-        if existing_attendance_record:
-            
-            if existing_attendance_record.time_in:
-                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} already Time In ❌'})
-            
-            existing_attendance_record.time_in=activity.start_time
-            existing_attendance_record.status="missed_out"
-            existing_attendance_record.fines = (activity.fines / 2) if activity.fines else 0
-            db.session.commit()
-            return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
-            
-
-        # Create a new attendance record
-        attendeeAdd = Attendance(
-            sched_activities_id=activity_id, 
-            student_id=student_id,  # Ensure the column matches your model
-            time_in=activity.start_time , # Set the correct time zone
-            status="missed_out",
-            fines=activity.fines/2 if activity.fines else 0
-        )
-        db.session.add(attendeeAdd)
-        db.session.commit()
-
-        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-    
-    
-#add attendeess OUT completed
-@manage_attendance.route('/add_student_out_completed', methods=['POST'])
-@login_required
-@role_required_multiple('admin', 'ssg')
-def add_student_out_completed():
-    try:
-        
-        student_id = request.json.get('student_id',[])
-        activity_id = request.json.get('activity_id',[])
-
-        if not student_id:
-            return jsonify({'success': False, 'message': 'Student ID not provided ❌'})
-        if not activity_id:
-            return jsonify({'success': False, 'message': 'Activity ID not provided ❌'})
-        
-        student=User.query.filter(
-            User.id==student_id,
-            User.role=="student",
-            User.is_verified==True,
-            User.is_deactivated==False
-            ).first()
-        
-        if not student:
-             return jsonify({'success': False, 'message': 'Student Not Found ❌'})
-            
-
-        activity=Sched_activities.query.get(activity_id)
-        if not activity:
-            return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
-
-        existing_attendance_record = Attendance.query.filter_by(
-            student_id=student_id,
-            sched_activities_id=activity_id  # <-- Add this
-        ).first()
-
-        if existing_attendance_record:
-            
-            if not existing_attendance_record.time_in:
-                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
-            
-            if existing_attendance_record.time_out:
-                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Already Time Out❌'})
-            
-            existing_attendance_record.time_out=activity.end_time
-            existing_attendance_record.status="attended"
-            existing_attendance_record.fines=0
-            db.session.commit()
-            return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out successfully ✅'})
-            
-
-        return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name}, Please Time In first ❌'})
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)})
-    
-    
-    
     
    
 #add attendeess absent completed

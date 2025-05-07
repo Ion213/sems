@@ -160,7 +160,7 @@ def get_student_unpaid_attendance_fines():
             Attendance.is_paid == False,
             Attendance.fines!=0,
             Schedule.is_ended==True,
-            Attendance.status.in_(["absent", "missed_out"])
+            Attendance.status.in_(["absent", "missed_out","missed_in"])
         ).all()
 
         all_unpaid_attendance_fines = []
@@ -613,7 +613,8 @@ def get_selected_unpaid_activity_attendance_data():
             Attendance.fines!=0,
             or_(
                 Attendance.status=="absent",
-                Attendance.status=="missed_out"
+                Attendance.status=="missed_out",
+                Attendance.status=="missed_in",
             )
             
         ).all()

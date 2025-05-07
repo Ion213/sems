@@ -308,18 +308,31 @@ def attendance_chart_data():
             Sched_activities.id==s.id
         ).all()
         
+        missed_in_in_the_event = db.session.query(Attendance.student_id).join(Sched_activities).filter(
+            Attendance.status == 'missed_in',
+            Schedule.is_ended==True,
+            Sched_activities.id==s.id
+        ).all()
+        
         attended_user_ids = [uid for (uid,) in attended_in_the_event]
         absent_user_ids = [uid for (uid,) in absent_in_the_event]
-        missed_user_ids = [uid for (uid,) in missed_out_in_the_event]
+        missed_out_user_ids = [uid for (uid,) in missed_out_in_the_event]
+        missed_in_user_ids = [uid for (uid,) in missed_in_in_the_event]
         
         attended = User.query.filter(
         User.id.in_(attended_user_ids),
         ).count()
+        
         absent = User.query.filter(
         User.id.in_(absent_user_ids),
         ).count()
+        
         missed_out = User.query.filter(
-        User.id.in_(missed_user_ids),
+        User.id.in_(missed_out_user_ids),
+        ).count()
+        
+        missed_in = User.query.filter(
+        User.id.in_(missed_in_user_ids),
         ).count()
         
         attendance_data = {
@@ -327,7 +340,8 @@ def attendance_chart_data():
             'event_schedule': s.schedule.scheduled_date.strftime('%Y-%m-%d'),
             'attended':attended,
             'absent':absent,
-            'missed_out':missed_out
+            'missed_out':missed_out,
+            'missed_in':missed_in
         }
         all_attendance_data.append(attendance_data)
 

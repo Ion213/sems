@@ -48,7 +48,7 @@ def view_attendance_fine_page():
     # Get the most recent year
     most_recent_year = max(years) if years else None
     
-    status=["absent","missed_out","attended"]
+    status=["absent","missed_out","attended","missed_in"]
     pay_status=[0,1] # true or false
     
      # Calculate current balance from fines

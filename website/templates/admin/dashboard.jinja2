@@ -304,9 +304,8 @@ $(document).ready(function(){
 
 //attendance chart
 function loadAttendanceChart(selected_year) {
-  if (!selected_year){
-      return
-    }
+  if (!selected_year) return;
+
   $.ajax({
     url: '/attendance_chart_data',
     type: 'GET',
@@ -322,6 +321,7 @@ function loadAttendanceChart(selected_year) {
       const attendedData = data.map(d => d.attended);
       const absentData = data.map(d => d.absent);
       const missedOutData = data.map(d => d.missed_out);
+      const missedInData = data.map(d => d.missed_in); // ➕ Added this
 
       window.attendanceChartInstance = new Chart(ctx, {
         type: 'line',
@@ -345,6 +345,14 @@ function loadAttendanceChart(selected_year) {
               fill: true
             },
             {
+              label: 'Missed In',
+              data: missedInData,
+              borderColor: '#9E9E9E', // Gray
+              backgroundColor: 'rgba(158, 158, 158, 0.2)', // Light gray fill
+              tension: 0.3,
+              fill: true
+            },
+            {
               label: 'Missed Out',
               data: missedOutData,
               borderColor: '#FFEB3B',
@@ -357,7 +365,6 @@ function loadAttendanceChart(selected_year) {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          
           plugins: {
             title: {
               display: true,
@@ -407,6 +414,7 @@ function loadAttendanceChart(selected_year) {
     }
   });
 }
+
 
 
 //payments chart
